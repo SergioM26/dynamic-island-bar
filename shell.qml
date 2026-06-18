@@ -1,3 +1,4 @@
+// Shell.qml
 import Quickshell
 import QtQuick
 

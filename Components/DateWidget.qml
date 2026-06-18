@@ -3,7 +3,7 @@ import QtQuick
 import "../Services"
 
 Text {
-    property string date: Time.date
+    property string date: Timed.date
     required property double fontSize
     required property string fontColor
 
