@@ -8,8 +8,8 @@ QtObject {
     readonly property real idleHeight: 40
     readonly property real expandedWidth: 300
     readonly property real expandedHeight: 80
-    readonly property real volumeWidth: 200
-    readonly property real volumeHeight: 40
+    readonly property real controlWidth: 240
+    readonly property real controlHeight: 40
     readonly property real islandTopMargin: 5
     readonly property real exclusiveZone: 40
 
@@ -23,6 +23,7 @@ QtObject {
     readonly property color backgroundColor: "black"
     readonly property color foregroundColor: "white"
     readonly property color sliderTrackColor: "gray"
+    readonly property color sliderProgressColor: "white"
     readonly property color batteryNormalColor: "black"
     readonly property color batteryChargingColor: "lime"
     readonly property color batteryLowColor: "red"
@@ -40,7 +41,16 @@ QtObject {
     readonly property real shadowOpacity: 0.8
     readonly property real shadowVerticalOffset: 2
 
-    // Volume slider
-    readonly property real volumeSliderWidth: 150
-    readonly property real volumeSliderHeight: 15
+    // Sliders
+    readonly property real sliderTrackWidth: 150
+    readonly property real sliderHeight: 15
+    readonly property real sliderIconSize: 18
+    readonly property real sliderSpacing: 8
+    readonly property real sliderIconHitSize: 24
+    readonly property real sliderWidth: sliderIconSize + sliderSpacing + sliderTrackWidth
+    readonly property real mutedSliderOpacity: 0.35
+    readonly property real sliderValueSpacing: 4
+    readonly property real sliderValueWidth: 36
+    readonly property real sliderValueFontSize: 14
+    readonly property real systemControlWidth: sliderWidth + sliderValueSpacing + sliderValueWidth
 }

@@ -1,10 +1,10 @@
 import QtQuick
-import "../Components"
+import "../Controls"
 
 Item {
     id: volume
 
-    VolumeSlider {
+    VolumeControl {
         anchors.centerIn: parent
     }
 }

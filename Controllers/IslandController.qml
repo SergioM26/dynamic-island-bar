@@ -7,14 +7,16 @@ Item {
 
     enum View {
         Idle,
-        Volume
+        Volume,
+        Brightness
     }
 
     property int currentView: IslandController.Idle
     property bool expanded: false
 
-    readonly property size targetSize: currentView === IslandController.Volume
-        ? Qt.size(Theme.volumeWidth, Theme.volumeHeight)
+    readonly property size targetSize:
+        currentView === IslandController.Volume || currentView === IslandController.Brightness
+        ? Qt.size(Theme.controlWidth, Theme.controlHeight)
         : expanded
             ? Qt.size(Theme.expandedWidth, Theme.expandedHeight)
             : Qt.size(Theme.idleWidth, Theme.idleHeight)
@@ -22,8 +24,17 @@ Item {
     Connections {
         target: VolumeService
 
-        function onVolumeUpdated() {
+        function onAudioUpdated() {
             controller.currentView = IslandController.Volume
+            hideTimer.restart()
+        }
+    }
+
+    Connections {
+        target: BrightnessService
+
+        function onBrightnessUpdated() {
+            controller.currentView = IslandController.Brightness
             hideTimer.restart()
         }
     }

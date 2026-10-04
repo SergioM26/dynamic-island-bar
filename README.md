@@ -16,9 +16,13 @@ shell.qml
     ├── Controllers/IslandController.qml
     └── IslandSurface.qml
         ├── Components/IslandForm.qml
+        ├── Controls/
+        │   ├── VolumeControl.qml
+        │   └── BrightnessControl.qml
         └── Views/
             ├── IdleView.qml
-            └── VolumeView.qml
+            ├── VolumeView.qml
+            └── BrightnessView.qml
 ```
 
 - `shell.qml`: Quickshell entry point.
@@ -26,8 +30,9 @@ shell.qml
 - `IslandSurface.qml`: coordinates size animations, hover state, battery color, and view transitions.
 - `Controllers/`: owns the active view, expansion state, target size, and state timers.
 - `Views/`: defines the content displayed for each island state.
-- `Components/`: contains reusable visual elements such as the island shape, clock, date, and volume slider.
-- `Services/`: provides shared system data through `TimeService` and `VolumeService`.
+- `Components/`: contains reusable visual primitives such as the island shape, slider, and colorized icon.
+- `Controls/`: adapts generic components to system features such as volume and brightness.
+- `Services/`: provides shared system data through `TimeService`, `VolumeService`, and `BrightnessService`.
 - `Config/Theme.qml`: centralizes sizes, colors, typography, and animation durations.
 
 The UI follows a state-driven flow:
@@ -59,16 +64,21 @@ System event or user interaction
 |idle | Clock| ![idle](./Screenshots/idle.png) |
 | idle + hovered| Clock + Date| ![idleHovered](./Screenshots/idleHovered.png) |
 | Volume Control | Volume Slider| ![volume](./Screenshots/volume.png) |
+| Brightness Control | Brightness Slider | — |
 
 ### Features
 - Battery status is reflected through the island border.
 
 ---
+## Third-party assets
+
+Volume icons are provided by [Lucide](https://lucide.dev/) under the ISC License.
+The corresponding license is included in `Assets/Icons/lucide/LICENSE`.
+
+---
 ## TODO
-- [ ] Slider component for Volume And Bright control 
-- [ ] Bright Control 
+- [X] Slider component for Volume And Bright control 
+- [x] Bright Control for laptop display
 - [ ] idle + Hovered add a Workspace Selector
 - [ ] idle + hovered show battery percentage, wifi 
 - [ ] Calendar 
-
-

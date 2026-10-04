@@ -42,11 +42,17 @@ Variants {
                 VolumeView {}
             }
 
+            Component {
+                id: brightnessView
+                BrightnessView {}
+            }
+
             IslandSurface {
                 id: surface
                 controller: controller
                 idleComponent: idleView
                 volumeComponent: volumeView
+                brightnessComponent: brightnessView
             }
         }
     }

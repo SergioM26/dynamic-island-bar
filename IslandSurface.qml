@@ -10,6 +10,7 @@ Item {
     required property IslandController controller
     required property Component idleComponent
     required property Component volumeComponent
+    required property Component brightnessComponent
 
     width: controller.targetSize.width
     height: controller.targetSize.height
@@ -61,10 +62,25 @@ Item {
     }
 
     Loader {
+        id: volumeLoader
         anchors.fill: parent
+        clip: true
         sourceComponent: surface.volumeComponent
         visible: opacity > 0
         opacity: surface.controller.currentView === IslandController.Volume ? 1 : 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: Theme.contentTransitionDuration }
+        }
+    }
+
+    Loader {
+        id: brightnessLoader
+        anchors.fill: parent
+        clip: true
+        sourceComponent: surface.brightnessComponent
+        visible: opacity > 0
+        opacity: surface.controller.currentView === IslandController.Brightness ? 1 : 0
 
         Behavior on opacity {
             NumberAnimation { duration: Theme.contentTransitionDuration }
