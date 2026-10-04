@@ -1,20 +1,14 @@
-// Island.qml
 import Quickshell
 import QtQuick
 import "Views"
-import "Components"
 import "Controllers"
-import QtQuick.Effects
+import "Config"
 
 Variants {
     model: Quickshell.screens
 
     Component {
         PanelWindow {
-            // ================================================================
-            // Properties
-            // ================================================================
-
             id: island
             required property var modelData
 
@@ -28,38 +22,10 @@ Variants {
             }
 
             implicitHeight: modelData.height
+            exclusiveZone: Theme.exclusiveZone
 
             mask: Region {
-                item: form 
-            }
-
-            exclusiveZone: 40
-
-            // ================================================================
-            // Effects
-            // ================================================================
-
-            // MultiEffect {
-            //     anchors.fill: form 
-            //     source: form 
-            //
-            //     shadowEnabled: true
-            //     shadowBlur: 0.8
-            //     shadowOpacity: 0.8
-            //     shadowVerticalOffset: 2
-            // }
-
-            // ================================================================
-            // Content
-            // ================================================================
-
-            property int targetWidth: content.item?.preferredWidth ?? 120
-            property int targetHeight: content.item?.preferredHeight ?? 40 
-
-            IslandForm {
-                id : form
-                targetWidth : island.targetWidth
-                targetHeight : island.targetHeight
+                item: surface
             }
 
             IslandController {
@@ -73,16 +39,14 @@ Variants {
 
             Component {
                 id: volumeView
-                VolumeView{}
+                VolumeView {}
             }
 
-            Loader {
-                id: content
-                anchors.fill: form 
-                sourceComponent: 
-                controller.currentView === controller.volumeView ? volumeView :
-                controller.currentView === controller.idleView ? idleView :
-                idleView
+            IslandSurface {
+                id: surface
+                controller: controller
+                idleComponent: idleView
+                volumeComponent: volumeView
             }
         }
     }

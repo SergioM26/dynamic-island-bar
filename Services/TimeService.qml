@@ -1,4 +1,4 @@
-// Timed.qml
+// TimeService.qml
 pragma Singleton
 
 import Quickshell

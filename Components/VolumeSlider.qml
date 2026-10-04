@@ -1,25 +1,26 @@
 import QtQuick
 import "../Services"
+import "../Config"
 
 Rectangle {
     id: slider
 
-    property real normalizedVolume: Math.max(0, Math.min(1, Volumed.volume))
+    readonly property real normalizedVolume: Math.max(0, Math.min(1, VolumeService.volume))
 
-    height: 15
+    height: Theme.volumeSliderHeight
     radius: height / 2
-    color: "gray"
+    color: Theme.sliderTrackColor
 
     Behavior on width {
         NumberAnimation {
-            duration: 320
+            duration: Theme.morphDuration
             easing.type: Easing.InOutQuad
         }
     }
 
     Behavior on opacity {
         NumberAnimation {
-            duration: 320
+            duration: Theme.morphDuration
             easing.type: Easing.InOutQuad
         }
     }
@@ -28,7 +29,7 @@ Rectangle {
     opacity: 0
 
     Component.onCompleted: {
-        width = 150
+        width = Theme.volumeSliderWidth
         opacity = 1
     }
 
@@ -37,7 +38,7 @@ Rectangle {
         width: parent.width * slider.normalizedVolume
         height: parent.height
         radius: height / 2
-        color: "white"
+        color: Theme.foregroundColor
 
         Text {
             x: 5
@@ -51,7 +52,7 @@ Rectangle {
 
         onPositionChanged: {
             if (pressed && mouse.x < width)
-                Volumed.setVolume(mouse.x / width)
+                VolumeService.setVolume(mouse.x / width)
         }
     }
 }

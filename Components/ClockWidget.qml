@@ -1,20 +1,21 @@
 // ClockWidget.qml
 import QtQuick
 import "../Services"
+import "../Config"
 
 Text {
-	property string time: Timed.time
-    required property double fontSize
-    required property string fontColor
+    readonly property string time: TimeService.time
+    required property real fontSize
+    required property color fontColor
     Behavior on font.pixelSize{
         NumberAnimation {
-            duration: 320
+            duration: Theme.morphDuration
             easing.type: Easing.OutCubic
         }
     }
 
     font.pixelSize : fontSize
-    font.family : "monospace"
+    font.family : Theme.fontFamily
     color: fontColor 
     text : time 
 }

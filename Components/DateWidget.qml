@@ -1,14 +1,15 @@
 // DateWidget.qml
 import QtQuick
 import "../Services"
+import "../Config"
 
 Text {
-    property string date: Timed.date
-    required property double fontSize
-    required property string fontColor
+    readonly property string date: TimeService.date
+    required property real fontSize
+    required property color fontColor
 
     font.pixelSize : fontSize
-    font.family : "monospace"
+    font.family : Theme.fontFamily
     color: fontColor 
     text : date
 }
