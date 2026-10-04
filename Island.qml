@@ -2,10 +2,9 @@
 import Quickshell
 import QtQuick
 import "Views"
-import "Services"
 import "Components"
+import "Controllers"
 import QtQuick.Effects
-import Quickshell.Hyprland
 
 Variants {
     model: Quickshell.screens
@@ -40,15 +39,15 @@ Variants {
             // Effects
             // ================================================================
 
-            MultiEffect {
-                anchors.fill: form 
-                source: form 
-
-                shadowEnabled: true
-                shadowBlur: 0.8
-                shadowOpacity: 0.8
-                shadowVerticalOffset: 2
-            }
+            // MultiEffect {
+            //     anchors.fill: form 
+            //     source: form 
+            //
+            //     shadowEnabled: true
+            //     shadowBlur: 0.8
+            //     shadowOpacity: 0.8
+            //     shadowVerticalOffset: 2
+            // }
 
             // ================================================================
             // Content
@@ -63,6 +62,10 @@ Variants {
                 targetHeight : island.targetHeight
             }
 
+            IslandController {
+                id: controller
+            }
+
             Component {
                 id: idleView
                 IdleView {}
@@ -73,49 +76,14 @@ Variants {
                 VolumeView{}
             }
 
-            Connections {
-                target: Volumed
-
-                function onVolumeUpdated() {
-                    Stated.currentView =  Stated.volume
-                    hideTimer.restart()
-                }
-            }
             Loader {
                 id: content
                 anchors.fill: form 
                 sourceComponent: 
-                Stated.currentView === Stated.volume ? volumeView :
-                Stated.currentView === Stated.idle ? idleView :
+                controller.currentView === controller.volumeView ? volumeView :
+                controller.currentView === controller.idleView ? idleView :
                 idleView
-                // sourceComponent: island.volumeActive ? volumeView : idleView
-                // sourceComponent: volumeView
             }
-
-            // property bool volumeActive: false
-            //
-            Timer {
-                id: hideTimer
-                interval: 2000  // 2 segundos y regresa al idle
-                onTriggered: Stated.currentView = Stated.idle 
-            }
-
-            // Connections {
-            //     target: Volumed.defaultSink?.audio ?? null
-            //     function onVolumeChanged() {
-            //         // if (!island.shegcc) return  // ignora cambios tempranos
-            //         island.volumeActive = true;
-            //         hideTimer.restart();
-            //     }
-            // }
-            // Loader {
-            //     id: viewLoader
-            //     anchors.horizontalCenter: parent.horizontalCenter
-            //     anchors.top: parent.top
-            //     sourceComponent: idleView
-            //     // sourceComponent: island.volumeActive ? volumeView : idleView
-            //     // sourceComponent: volumeView
-            // }
         }
     }
 }
