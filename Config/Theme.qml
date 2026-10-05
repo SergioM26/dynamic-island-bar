@@ -10,6 +10,9 @@ QtObject {
     readonly property real expandedHeight: 80
     readonly property real controlWidth: 240
     readonly property real controlHeight: 40
+    readonly property real authenticationWidth: 440
+    readonly property real authenticationHeight: 230
+    readonly property real authenticationRadius: 24
     readonly property real islandTopMargin: 5
     readonly property real exclusiveZone: 40
 
@@ -28,18 +31,38 @@ QtObject {
     readonly property color batteryChargingColor: "lime"
     readonly property color batteryLowColor: "red"
     readonly property color batteryWarningColor: "yellow"
+    readonly property color secondaryTextColor: "#a0a0a0"
+    readonly property color errorColor: "#ff5f5f"
+    readonly property color buttonColor: "#202020"
+    readonly property color buttonHoverColor: "#303030"
+    readonly property color selectionColor: "#d0d0d0"
 
     // Typography
     readonly property string fontFamily: "monospace"
     readonly property real clockFontSize: 16
     readonly property real expandedClockFontSize: 20
     readonly property real dateFontSize: 14
+    readonly property real authenticationTitleFontSize: 18
+    readonly property real authenticationDetailFontSize: 11
+    readonly property real authenticationInputFontSize: 14
+    readonly property real buttonFontSize: 12
 
     // Surface
     readonly property real borderWidth: 2
     readonly property real shadowBlur: 0.8
     readonly property real shadowOpacity: 0.8
     readonly property real shadowVerticalOffset: 2
+
+    // Authentication
+    readonly property real authenticationContentWidth: 340
+    readonly property real authenticationElementSpacing: 12
+    readonly property real authenticationSectionSpacing: 18
+    readonly property real authenticationInputHeight: 44
+    readonly property real authenticationInputPadding: 14
+    readonly property real authenticationPasswordSpacing: 3
+    readonly property real authenticationLockSize: 18
+    readonly property real authenticationButtonHeight: 38
+    readonly property real authenticationErrorHeight: 16
 
     // Sliders
     readonly property real sliderTrackWidth: 150

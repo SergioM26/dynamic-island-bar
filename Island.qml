@@ -1,8 +1,11 @@
 import Quickshell
 import QtQuick
+import Quickshell.Hyprland
+import Quickshell.Wayland
 import "Views"
 import "Controllers"
 import "Config"
+import "Services"
 
 Variants {
     model: Quickshell.screens
@@ -23,6 +26,12 @@ Variants {
 
             implicitHeight: modelData.height
             exclusiveZone: Theme.exclusiveZone
+            WlrLayershell.layer: controller.authenticationActive
+                ? WlrLayer.Overlay
+                : WlrLayer.Top
+            WlrLayershell.keyboardFocus: controller.authenticationActive
+                ? WlrKeyboardFocus.Exclusive
+                : WlrKeyboardFocus.None
 
             mask: Region {
                 item: surface
@@ -30,6 +39,9 @@ Variants {
 
             IslandController {
                 id: controller
+                authenticationHost: PolkitService.hostMonitorName.length > 0
+                    ? modelData.name === PolkitService.hostMonitorName
+                    : modelData === Quickshell.screens[0]
             }
 
             Component {
@@ -47,12 +59,18 @@ Variants {
                 BrightnessView {}
             }
 
+            Component {
+                id: authenticationView
+                AuthenticationView {}
+            }
+
             IslandSurface {
                 id: surface
                 controller: controller
                 idleComponent: idleView
                 volumeComponent: volumeView
                 brightnessComponent: brightnessView
+                authenticationComponent: authenticationView
             }
         }
     }

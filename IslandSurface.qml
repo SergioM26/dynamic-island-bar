@@ -11,6 +11,7 @@ Item {
     required property Component idleComponent
     required property Component volumeComponent
     required property Component brightnessComponent
+    required property Component authenticationComponent
 
     width: controller.targetSize.width
     height: controller.targetSize.height
@@ -40,6 +41,12 @@ Item {
     IslandForm {
         anchors.fill: parent
         borderColor: surface.batteryColor
+        borderWidth: surface.controller.authenticationActive ? 0 : Theme.borderWidth
+        // Follow the animated height directly. Animating radius separately made
+        // the island briefly look rectangular during the idle hover morph.
+        cornerRadius: surface.controller.authenticationActive
+            ? Math.min(Theme.authenticationRadius, height / 2)
+            : height / 2
     }
 
     Loader {
@@ -47,7 +54,8 @@ Item {
         anchors.fill: parent
         sourceComponent: surface.idleComponent
         visible: opacity > 0
-        opacity: surface.controller.currentView === IslandController.Idle ? 1 : 0
+        opacity: surface.controller.baseContentVisible
+            && surface.controller.currentView === IslandController.Idle ? 1 : 0
 
         Behavior on opacity {
             NumberAnimation { duration: Theme.contentTransitionDuration }
@@ -67,7 +75,8 @@ Item {
         clip: true
         sourceComponent: surface.volumeComponent
         visible: opacity > 0
-        opacity: surface.controller.currentView === IslandController.Volume ? 1 : 0
+        opacity: surface.controller.baseContentVisible
+            && surface.controller.currentView === IslandController.Volume ? 1 : 0
 
         Behavior on opacity {
             NumberAnimation { duration: Theme.contentTransitionDuration }
@@ -80,7 +89,21 @@ Item {
         clip: true
         sourceComponent: surface.brightnessComponent
         visible: opacity > 0
-        opacity: surface.controller.currentView === IslandController.Brightness ? 1 : 0
+        opacity: surface.controller.baseContentVisible
+            && surface.controller.currentView === IslandController.Brightness ? 1 : 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: Theme.contentTransitionDuration }
+        }
+    }
+
+    Loader {
+        id: authenticationLoader
+        anchors.fill: parent
+        clip: true
+        sourceComponent: surface.authenticationComponent
+        visible: opacity > 0
+        opacity: surface.controller.authenticationContentVisible ? 1 : 0
 
         Behavior on opacity {
             NumberAnimation { duration: Theme.contentTransitionDuration }
@@ -89,6 +112,7 @@ Item {
 
     HoverHandler {
         enabled: surface.controller.currentView === IslandController.Idle
+            && !surface.controller.authenticationActive
         cursorShape: Qt.PointingHandCursor
         onHoveredChanged: surface.controller.expanded = hovered
     }

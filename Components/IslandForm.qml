@@ -6,13 +6,15 @@ Item {
     id: islandForm
 
     property color borderColor: Theme.batteryNormalColor
+    property real borderWidth: Theme.borderWidth
+    property real cornerRadius: height / 2
 
     Rectangle {
         id: background
         anchors.fill: parent
-        radius: height / 2
+        radius: islandForm.cornerRadius
         color: Theme.backgroundColor
-        border.width: Theme.borderWidth
+        border.width: islandForm.borderWidth
         border.color: islandForm.borderColor
 
         Behavior on border.color {
