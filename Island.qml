@@ -26,21 +26,42 @@ Variants {
 
             implicitHeight: modelData.height
             exclusiveZone: Theme.exclusiveZone
-            WlrLayershell.layer: controller.authenticationActive
+            WlrLayershell.layer: PolkitService.active || PowerMenuService.visible
                 ? WlrLayer.Overlay
                 : WlrLayer.Top
-            WlrLayershell.keyboardFocus: controller.authenticationActive
+            WlrLayershell.keyboardFocus: controller.inputActive
                 ? WlrKeyboardFocus.Exclusive
                 : WlrKeyboardFocus.None
 
             mask: Region {
-                item: surface
+                item: PolkitService.active || PowerMenuService.visible
+                    ? modalScrim
+                    : surface
+            }
+
+            Rectangle {
+                id: modalScrim
+                anchors.fill: parent
+                z: 0
+                color: Theme.modalScrimColor
+                visible: opacity > 0
+                opacity: PolkitService.active || PowerMenuService.visible ? 1 : 0
+
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: Theme.detailTransitionDuration
+                        easing.type: Easing.OutCubic
+                    }
+                }
             }
 
             IslandController {
                 id: controller
                 authenticationHost: PolkitService.hostMonitorName.length > 0
                     ? modelData.name === PolkitService.hostMonitorName
+                    : modelData === Quickshell.screens[0]
+                sessionHost: PowerMenuService.hostMonitorName.length > 0
+                    ? modelData.name === PowerMenuService.hostMonitorName
                     : modelData === Quickshell.screens[0]
             }
 
@@ -64,13 +85,20 @@ Variants {
                 AuthenticationView {}
             }
 
+            Component {
+                id: sessionView
+                SessionView {}
+            }
+
             IslandSurface {
                 id: surface
+                z: 1
                 controller: controller
                 idleComponent: idleView
                 volumeComponent: volumeView
                 brightnessComponent: brightnessView
                 authenticationComponent: authenticationView
+                sessionComponent: sessionView
             }
         }
     }

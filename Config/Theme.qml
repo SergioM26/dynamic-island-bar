@@ -13,6 +13,8 @@ QtObject {
     readonly property real authenticationWidth: 440
     readonly property real authenticationHeight: 230
     readonly property real authenticationRadius: 24
+    readonly property real sessionWidth: 300
+    readonly property real sessionHeight: 68
     readonly property real islandTopMargin: 5
     readonly property real exclusiveZone: 40
 
@@ -36,6 +38,9 @@ QtObject {
     readonly property color buttonColor: "#202020"
     readonly property color buttonHoverColor: "#303030"
     readonly property color selectionColor: "#d0d0d0"
+    readonly property color sessionSelectionColor: "#f5f5f5"
+    readonly property color sessionIconColor: "white"
+    readonly property color modalScrimColor: "#4d000000"
 
     // Typography
     readonly property string fontFamily: "monospace"
@@ -63,6 +68,10 @@ QtObject {
     readonly property real authenticationLockSize: 18
     readonly property real authenticationButtonHeight: 38
     readonly property real authenticationErrorHeight: 16
+
+    // Session menu
+    readonly property real sessionButtonSize: 46
+    readonly property real sessionButtonSpacing: 18
 
     // Sliders
     readonly property real sliderTrackWidth: 150

@@ -6,7 +6,8 @@ Inspired by **@saneAspect** and **@Gakuseei**.
 
 DIBAR morphs between compact views in response to user interaction and system
 events. It currently provides a clock, volume and display brightness controls,
-battery feedback, and an integrated PolicyKit authentication agent.
+battery feedback, an integrated PolicyKit authentication agent, and a session
+power menu.
 
 ## Requirements
 
@@ -39,7 +40,8 @@ shell.qml
             ├── IdleView.qml
             ├── VolumeView.qml
             ├── BrightnessView.qml
-            └── AuthenticationView.qml
+            ├── AuthenticationView.qml
+            └── SessionView.qml
 ```
 
 - `shell.qml`: Quickshell entry point.
@@ -49,7 +51,8 @@ shell.qml
 - `Views/`: defines the content displayed for each island state.
 - `Components/`: contains reusable visual primitives such as the island shape, slider, and colorized icon.
 - `Controls/`: composes reusable components into volume, brightness, and action controls.
-- `Services/`: provides shared system data and authentication through time, volume, brightness, and PolicyKit services.
+- `Services/`: provides shared system data and actions through time, volume,
+  brightness, PolicyKit, and power-menu services.
 - `Config/Theme.qml`: centralizes sizes, colors, typography, and animation durations.
 
 The UI follows a state-driven flow:
@@ -95,6 +98,35 @@ Authentication content fades in
 
 The sequence is reversed after success or cancellation.
 
+## Session menu
+
+`PowerMenuService.qml` exposes the session menu through Quickshell IPC and
+executes its lock, suspend, restart, and power-off actions. The menu opens on
+the currently focused monitor:
+
+```bash
+qs ipc call powerMenu toggle
+qs ipc call powerMenu open
+qs ipc call powerMenu close
+```
+
+An example Hyprland binding is:
+
+```lua
+hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd("qs ipc call powerMenu toggle"))
+```
+
+`SessionView.qml` supports mouse hover and click as well as keyboard navigation:
+
+- `Left` / `Right`: change the selected action.
+- `Enter` / `Space`: execute the selected action.
+- `Escape`: close the menu.
+
+The selected indicator moves with a spring animation and a subtle squash
+effect. Opening the menu dims and blocks every screen while keeping the menu
+and keyboard focus on the monitor that was active when it opened. PolicyKit
+uses the same multi-monitor modal background.
+
 ## Design principles
 
 - Minimalistic
@@ -115,6 +147,7 @@ The sequence is reversed after success or cancellation.
 | Volume | Volume slider, mute action, and percentage up to 150% | ![Volume](./Screenshots/volume.png) |
 | Brightness | Laptop display brightness and percentage | — |
 | Authentication | PolicyKit prompt, password input, actions, and errors | — |
+| Session menu | Lock, suspend, restart, and power off | — |
 
 The island border reflects battery status: black normally, green while
 charging, yellow for a warning, and red when battery is low. Authentication
@@ -133,3 +166,5 @@ The corresponding license is included in `Assets/Icons/lucide/LICENSE`.
 - [ ] Workspace selector in the expanded idle view
 - [ ] Battery percentage and Wi-Fi status in the expanded idle view
 - [ ] Calendar
+- [ ] External monitors brightness control with ddcutil
+- [ ] Reliably restore the previously focused window after closing a modal

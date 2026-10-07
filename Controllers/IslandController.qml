@@ -6,12 +6,14 @@ Item {
     id: controller
 
     required property bool authenticationHost
+    property bool sessionHost: false
 
     enum View {
         Idle,
         Volume,
         Brightness,
-        Authentication
+        Authentication,
+        SessionMenu
     }
 
     property int currentView: IslandController.Idle
@@ -19,12 +21,18 @@ Item {
     property bool baseContentVisible: true
     property bool authenticationContentVisible: false
     property bool authenticationEngaged: false
+    property bool sessionContentVisible: false
+    property bool sessionEngaged: false
     readonly property bool authenticationActive:
         authenticationEngaged
+    readonly property bool sessionActive: sessionEngaged
+    readonly property bool inputActive: authenticationActive || sessionActive
 
     readonly property size targetSize:
         currentView === IslandController.Authentication
             ? Qt.size(Theme.authenticationWidth, Theme.authenticationHeight)
+            : currentView === IslandController.SessionMenu
+                ? Qt.size(Theme.sessionWidth, Theme.sessionHeight)
             : currentView === IslandController.Volume || currentView === IslandController.Brightness
                 ? Qt.size(Theme.controlWidth, Theme.controlHeight)
                 : expanded
@@ -35,7 +43,7 @@ Item {
         target: VolumeService
 
         function onAudioUpdated() {
-            if (controller.authenticationActive)
+            if (controller.inputActive)
                 return
 
             controller.currentView = IslandController.Volume
@@ -47,7 +55,7 @@ Item {
         target: BrightnessService
 
         function onBrightnessUpdated() {
-            if (controller.authenticationActive)
+            if (controller.inputActive)
                 return
 
             controller.currentView = IslandController.Brightness
@@ -63,6 +71,15 @@ Item {
                 return
 
             hideTimer.stop()
+            if (controller.sessionEngaged)
+                PowerMenuService.closeMenu()
+
+            sessionEnterMorphTimer.stop()
+            sessionEnterContentTimer.stop()
+            sessionExitMorphTimer.stop()
+            sessionExitIdleTimer.stop()
+            controller.sessionContentVisible = false
+            controller.sessionEngaged = false
             authenticationExitMorphTimer.stop()
             authenticationExitIdleTimer.stop()
             controller.authenticationEngaged = true
@@ -84,6 +101,46 @@ Item {
             else {
                 controller.currentView = IslandController.Idle
                 controller.authenticationEngaged = false
+                controller.baseContentVisible = true
+            }
+        }
+    }
+
+    Connections {
+        target: PowerMenuService
+
+        function onVisibleChanged() {
+            if (PowerMenuService.visible) {
+                if (!controller.sessionHost)
+                    return
+
+                if (controller.authenticationActive) {
+                    PowerMenuService.closeMenu()
+                    return
+                }
+
+                hideTimer.stop()
+                sessionExitMorphTimer.stop()
+                sessionExitIdleTimer.stop()
+                controller.sessionEngaged = true
+                controller.sessionContentVisible = false
+                controller.baseContentVisible = false
+                sessionEnterMorphTimer.restart()
+                return
+            }
+
+            if (!controller.sessionEngaged)
+                return
+
+            sessionEnterMorphTimer.stop()
+            sessionEnterContentTimer.stop()
+            controller.sessionContentVisible = false
+
+            if (controller.currentView === IslandController.SessionMenu)
+                sessionExitMorphTimer.restart()
+            else {
+                controller.currentView = IslandController.Idle
+                controller.sessionEngaged = false
                 controller.baseContentVisible = true
             }
         }
@@ -126,6 +183,46 @@ Item {
         interval: Theme.morphDuration
         onTriggered: {
             controller.authenticationEngaged = false
+            controller.baseContentVisible = true
+        }
+    }
+
+    // Session menu uses the same content → shape → content sequence.
+    Timer {
+        id: sessionEnterMorphTimer
+        interval: Theme.contentTransitionDuration
+        onTriggered: {
+            if (!PowerMenuService.visible)
+                return
+
+            controller.currentView = IslandController.SessionMenu
+            sessionEnterContentTimer.restart()
+        }
+    }
+
+    Timer {
+        id: sessionEnterContentTimer
+        interval: Theme.morphDuration
+        onTriggered: {
+            if (PowerMenuService.visible)
+                controller.sessionContentVisible = true
+        }
+    }
+
+    Timer {
+        id: sessionExitMorphTimer
+        interval: Theme.contentTransitionDuration
+        onTriggered: {
+            controller.currentView = IslandController.Idle
+            sessionExitIdleTimer.restart()
+        }
+    }
+
+    Timer {
+        id: sessionExitIdleTimer
+        interval: Theme.morphDuration
+        onTriggered: {
+            controller.sessionEngaged = false
             controller.baseContentVisible = true
         }
     }

@@ -12,6 +12,7 @@ Item {
     required property Component volumeComponent
     required property Component brightnessComponent
     required property Component authenticationComponent
+    required property Component sessionComponent
 
     width: controller.targetSize.width
     height: controller.targetSize.height
@@ -41,7 +42,7 @@ Item {
     IslandForm {
         anchors.fill: parent
         borderColor: surface.batteryColor
-        borderWidth: surface.controller.authenticationActive ? 0 : Theme.borderWidth
+        borderWidth: surface.controller.inputActive ? 0 : Theme.borderWidth
         // Follow the animated height directly. Animating radius separately made
         // the island briefly look rectangular during the idle hover morph.
         cornerRadius: surface.controller.authenticationActive
@@ -110,9 +111,22 @@ Item {
         }
     }
 
+    Loader {
+        id: sessionLoader
+        anchors.fill: parent
+        clip: true
+        sourceComponent: surface.sessionComponent
+        visible: opacity > 0
+        opacity: surface.controller.sessionContentVisible ? 1 : 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: Theme.contentTransitionDuration }
+        }
+    }
+
     HoverHandler {
         enabled: surface.controller.currentView === IslandController.Idle
-            && !surface.controller.authenticationActive
+            && !surface.controller.inputActive
         cursorShape: Qt.PointingHandCursor
         onHoveredChanged: surface.controller.expanded = hovered
     }
