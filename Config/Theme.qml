@@ -10,11 +10,14 @@ QtObject {
     readonly property real expandedHeight: 80
     readonly property real controlWidth: 240
     readonly property real controlHeight: 40
+    readonly property real workspaceSize: 40
     readonly property real authenticationWidth: 440
     readonly property real authenticationHeight: 230
     readonly property real authenticationRadius: 24
     readonly property real sessionWidth: 300
-    readonly property real sessionHeight: 68
+    readonly property real sessionHeight: 92
+    readonly property real powerProfileWidth: 238
+    readonly property real powerProfileHeight: 92
     readonly property real islandTopMargin: 5
     readonly property real exclusiveZone: 40
 
@@ -23,12 +26,18 @@ QtObject {
     readonly property int contentTransitionDuration: 140
     readonly property int detailTransitionDuration: 200
     readonly property int colorTransitionDuration: 300
+    readonly property int optionCenterDuration: 280
+    readonly property int optionConfirmHoldDuration: 250
+    readonly property int optionConfirmDuration:
+        optionCenterDuration + morphDuration + optionConfirmHoldDuration
 
     // Colors
     readonly property color backgroundColor: "black"
     readonly property color foregroundColor: "white"
     readonly property color sliderTrackColor: "gray"
     readonly property color sliderProgressColor: "white"
+    readonly property color sliderThumbColor: "#FAFAFA"
+    readonly property color sliderThumbBorderColor: "#666666"
     readonly property color batteryNormalColor: "black"
     readonly property color batteryChargingColor: "lime"
     readonly property color batteryLowColor: "red"
@@ -47,15 +56,17 @@ QtObject {
     readonly property real clockFontSize: 16
     readonly property real expandedClockFontSize: 20
     readonly property real dateFontSize: 14
+    readonly property real workspaceFontSize: 18
     readonly property real authenticationTitleFontSize: 18
     readonly property real authenticationDetailFontSize: 11
     readonly property real authenticationInputFontSize: 14
     readonly property real buttonFontSize: 12
+    readonly property real optionLabelFontSize: 14
 
     // Surface
     readonly property real borderWidth: 2
     readonly property real shadowBlur: 0.8
-    readonly property real shadowOpacity: 0.8
+    readonly property real shadowOpacity: 0.55
     readonly property real shadowVerticalOffset: 2
 
     // Authentication
@@ -72,10 +83,18 @@ QtObject {
     // Session menu
     readonly property real sessionButtonSize: 46
     readonly property real sessionButtonSpacing: 18
+    readonly property real optionStripHeight: 92
+    readonly property real optionStripTopPadding: 11
+    readonly property real optionStripLabelTop: 64
+    readonly property real optionConfirmWidth: 200
+    readonly property real optionConfirmHeight: optionStripHeight
 
     // Sliders
     readonly property real sliderTrackWidth: 150
     readonly property real sliderHeight: 15
+    readonly property real sliderThumbWidth: 10
+    readonly property real sliderThumbHeight: 24
+    readonly property real sliderThumbBorderWidth: 2
     readonly property real sliderIconSize: 18
     readonly property real sliderSpacing: 8
     readonly property real sliderIconHitSize: 24

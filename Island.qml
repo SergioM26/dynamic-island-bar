@@ -27,6 +27,7 @@ Variants {
             implicitHeight: modelData.height
             exclusiveZone: Theme.exclusiveZone
             WlrLayershell.layer: PolkitService.active || PowerMenuService.visible
+                || PowerProfileMenuService.visible
                 ? WlrLayer.Overlay
                 : WlrLayer.Top
             WlrLayershell.keyboardFocus: controller.inputActive
@@ -35,6 +36,7 @@ Variants {
 
             mask: Region {
                 item: PolkitService.active || PowerMenuService.visible
+                    || PowerProfileMenuService.visible
                     ? modalScrim
                     : surface
             }
@@ -45,7 +47,8 @@ Variants {
                 z: 0
                 color: Theme.modalScrimColor
                 visible: opacity > 0
-                opacity: PolkitService.active || PowerMenuService.visible ? 1 : 0
+                opacity: PolkitService.active || PowerMenuService.visible
+                    || PowerProfileMenuService.visible ? 1 : 0
 
                 Behavior on opacity {
                     NumberAnimation {
@@ -62,6 +65,11 @@ Variants {
                     : modelData === Quickshell.screens[0]
                 sessionHost: PowerMenuService.hostMonitorName.length > 0
                     ? modelData.name === PowerMenuService.hostMonitorName
+                    : modelData === Quickshell.screens[0]
+                brightnessHost: modelData.name === BrightnessService.activeMonitorName
+                workspaceHost: modelData.name === WorkspaceService.monitorName
+                powerProfileHost: PowerProfileMenuService.hostMonitorName.length > 0
+                    ? modelData.name === PowerProfileMenuService.hostMonitorName
                     : modelData === Quickshell.screens[0]
             }
 
@@ -81,6 +89,11 @@ Variants {
             }
 
             Component {
+                id: workspaceView
+                WorkspaceView {}
+            }
+
+            Component {
                 id: authenticationView
                 AuthenticationView {}
             }
@@ -90,6 +103,11 @@ Variants {
                 SessionView {}
             }
 
+            Component {
+                id: powerProfileView
+                PowerProfileView {}
+            }
+
             IslandSurface {
                 id: surface
                 z: 1
@@ -97,8 +115,10 @@ Variants {
                 idleComponent: idleView
                 volumeComponent: volumeView
                 brightnessComponent: brightnessView
+                workspaceComponent: workspaceView
                 authenticationComponent: authenticationView
                 sessionComponent: sessionView
+                powerProfileComponent: powerProfileView
             }
         }
     }

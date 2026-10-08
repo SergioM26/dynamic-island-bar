@@ -14,6 +14,7 @@ Item {
     signal muteToggled()
 
     readonly property real normalizedValue: Math.max(0, Math.min(1, value))
+    readonly property bool interacting: trackMouse.pressed
 
     width: Theme.sliderWidth
     height: Theme.sliderIconHitSize
@@ -67,8 +68,36 @@ Item {
             }
         }
 
+        Rectangle {
+            id: thumb
+            z: 1
+            x: Math.max(0, Math.min(
+                track.width - width,
+                track.width * slider.normalizedValue - width / 2
+            ))
+            anchors.verticalCenter: parent.verticalCenter
+            width: Theme.sliderThumbWidth
+            height: Theme.sliderThumbHeight
+            radius: width / 2
+            color: Theme.sliderThumbColor
+            border.width: Theme.sliderThumbBorderWidth
+            border.color: Theme.sliderThumbBorderColor
+            opacity: slider.muted ? Theme.mutedSliderOpacity : 1
+
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: Theme.contentTransitionDuration
+                }
+            }
+        }
+
         MouseArea {
-            anchors.fill: parent
+            id: trackMouse
+            z: 2
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            height: slider.height
 
             function updateValue(position: real): void {
                 slider.valueModified(Math.max(0, Math.min(1, position / width)))

@@ -10,16 +10,29 @@ Singleton {
     id: root
 
     property bool visible: false
+    property bool confirming: false
+    property bool compact: false
     property string hostMonitorName: ""
     property var pendingCommand: []
 
     function showMenu(): void {
+        root.confirming = false
+        root.compact = false
         root.hostMonitorName = Hyprland.focusedMonitor?.name ?? ""
         root.visible = true
     }
 
     function closeMenu(): void {
+        root.confirming = false
+        root.compact = false
+        compactDelay.stop()
         root.visible = false
+    }
+
+    function beginConfirmation(): void {
+        root.confirming = true
+        root.compact = false
+        compactDelay.restart()
     }
 
     function toggleMenu(): void {
@@ -29,7 +42,7 @@ Singleton {
             root.showMenu()
     }
 
-    function trigger(action: string): void {
+    function commit(action: string): void {
         switch (action) {
         case "poweroff":
             root.pendingCommand = ["systemctl", "poweroff"]
@@ -47,7 +60,7 @@ Singleton {
             return
         }
 
-        root.closeMenu()
+        root.visible = false
         commandDelay.restart()
     }
 
@@ -60,13 +73,21 @@ Singleton {
     }
 
     Timer {
+        id: compactDelay
+        interval: Theme.optionCenterDuration
+        onTriggered: root.compact = root.confirming
+    }
+
+    Timer {
         id: commandDelay
-        interval: Theme.contentTransitionDuration
+        interval: Theme.contentTransitionDuration + Theme.morphDuration
         onTriggered: {
             if (root.pendingCommand.length > 0)
                 Quickshell.execDetached(root.pendingCommand)
 
             root.pendingCommand = []
+            root.confirming = false
+            root.compact = false
         }
     }
 }

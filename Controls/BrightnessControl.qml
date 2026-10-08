@@ -4,6 +4,10 @@ import "../Services"
 import "../Components"
 
 Item {
+    id: root
+
+    readonly property bool interacting: slider.interacting
+
     width: Theme.systemControlWidth
     height: Theme.sliderIconHitSize
 

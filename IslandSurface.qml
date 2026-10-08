@@ -11,8 +11,10 @@ Item {
     required property Component idleComponent
     required property Component volumeComponent
     required property Component brightnessComponent
+    required property Component workspaceComponent
     required property Component authenticationComponent
     required property Component sessionComponent
+    required property Component powerProfileComponent
 
     width: controller.targetSize.width
     height: controller.targetSize.height
@@ -70,6 +72,13 @@ Item {
         when: idleLoader.status === Loader.Ready
     }
 
+    Binding {
+        target: surface.controller
+        property: "transientInteractionActive"
+        value: (volumeLoader.item?.interacting ?? false)
+            || (brightnessLoader.item?.interacting ?? false)
+    }
+
     Loader {
         id: volumeLoader
         anchors.fill: parent
@@ -99,6 +108,20 @@ Item {
     }
 
     Loader {
+        id: workspaceLoader
+        anchors.fill: parent
+        clip: true
+        sourceComponent: surface.workspaceComponent
+        visible: opacity > 0
+        opacity: surface.controller.baseContentVisible
+            && surface.controller.currentView === IslandController.Workspace ? 1 : 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: Theme.contentTransitionDuration }
+        }
+    }
+
+    Loader {
         id: authenticationLoader
         anchors.fill: parent
         clip: true
@@ -118,6 +141,19 @@ Item {
         sourceComponent: surface.sessionComponent
         visible: opacity > 0
         opacity: surface.controller.sessionContentVisible ? 1 : 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: Theme.contentTransitionDuration }
+        }
+    }
+
+    Loader {
+        id: powerProfileLoader
+        anchors.fill: parent
+        clip: true
+        sourceComponent: surface.powerProfileComponent
+        visible: opacity > 0
+        opacity: surface.controller.powerProfileContentVisible ? 1 : 0
 
         Behavior on opacity {
             NumberAnimation { duration: Theme.contentTransitionDuration }
