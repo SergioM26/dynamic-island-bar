@@ -18,6 +18,13 @@ QtObject {
     readonly property real sessionHeight: 92
     readonly property real powerProfileWidth: 238
     readonly property real powerProfileHeight: 92
+    readonly property real launcherWidth: 540
+    readonly property real launcherHeaderHeight: 66
+    readonly property real launcherBottomPadding: 12
+    readonly property real launcherListTopPadding: 8
+    readonly property real launcherRowHeight: 44
+    readonly property int launcherMaximumRows: 6
+    readonly property real launcherRadius: 28
     readonly property real islandTopMargin: 5
     readonly property real exclusiveZone: 40
 
@@ -50,6 +57,7 @@ QtObject {
     readonly property color sessionSelectionColor: "#f5f5f5"
     readonly property color sessionIconColor: "white"
     readonly property color modalScrimColor: "#4d000000"
+    readonly property color thumbnailBorderColor: "#383838"
 
     // Typography
     readonly property string fontFamily: "monospace"
@@ -62,6 +70,11 @@ QtObject {
     readonly property real authenticationInputFontSize: 14
     readonly property real buttonFontSize: 12
     readonly property real optionLabelFontSize: 14
+    readonly property real launcherInputFontSize: 18
+    readonly property real launcherCounterFontSize: 12
+    readonly property real launcherRowFontSize: 15
+    readonly property real launcherDescriptionFontSize: 11
+    readonly property real launcherFallbackIconFontSize: 15
 
     // Surface
     readonly property real borderWidth: 2
@@ -88,6 +101,21 @@ QtObject {
     readonly property real optionStripLabelTop: 64
     readonly property real optionConfirmWidth: 200
     readonly property real optionConfirmHeight: optionStripHeight
+
+    // App launcher
+    readonly property real launcherHorizontalPadding: 28
+    readonly property real launcherInputTop: 20
+    readonly property real launcherInputHeight: 34
+    readonly property real launcherSearchIconSize: 20
+    readonly property real launcherSearchSpacing: 12
+    readonly property real launcherAppIconSize: 26
+    readonly property real launcherRowHorizontalPadding: 12
+    readonly property real launcherRowContentSpacing: 12
+    readonly property real launcherRowRadius: 9
+    readonly property real launcherDescriptionWidth: 150
+    readonly property real launcherScrollbarWidth: 4
+    readonly property real launcherScrollbarSpacing: 10
+    readonly property real launcherScrollbarMinHeight: 28
 
     // Sliders
     readonly property real sliderTrackWidth: 150

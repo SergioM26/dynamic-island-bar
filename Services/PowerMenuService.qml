@@ -16,10 +16,12 @@ Singleton {
     property var pendingCommand: []
 
     function showMenu(): void {
+        FocusService.capture()
         root.confirming = false
         root.compact = false
         root.hostMonitorName = Hyprland.focusedMonitor?.name ?? ""
         root.visible = true
+        FocusService.hold()
     }
 
     function closeMenu(): void {
@@ -27,6 +29,7 @@ Singleton {
         root.compact = false
         compactDelay.stop()
         root.visible = false
+        FocusService.restoreDelayed()
     }
 
     function beginConfirmation(): void {
@@ -60,6 +63,7 @@ Singleton {
             return
         }
 
+        FocusService.forget()
         root.visible = false
         commandDelay.restart()
     }

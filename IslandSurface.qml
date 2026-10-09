@@ -15,6 +15,8 @@ Item {
     required property Component authenticationComponent
     required property Component sessionComponent
     required property Component powerProfileComponent
+    required property Component appLauncherComponent
+    required property Component clipboardComponent
 
     width: controller.targetSize.width
     height: controller.targetSize.height
@@ -47,8 +49,13 @@ Item {
         borderWidth: surface.controller.inputActive ? 0 : Theme.borderWidth
         // Follow the animated height directly. Animating radius separately made
         // the island briefly look rectangular during the idle hover morph.
-        cornerRadius: surface.controller.authenticationActive
-            ? Math.min(Theme.authenticationRadius, height / 2)
+        cornerRadius: surface.controller.largePanelActive
+            ? Math.min(
+                surface.controller.launcherActive || surface.controller.clipboardActive
+                    ? Theme.launcherRadius
+                    : Theme.authenticationRadius,
+                height / 2
+            )
             : height / 2
     }
 
@@ -154,6 +161,32 @@ Item {
         sourceComponent: surface.powerProfileComponent
         visible: opacity > 0
         opacity: surface.controller.powerProfileContentVisible ? 1 : 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: Theme.contentTransitionDuration }
+        }
+    }
+
+    Loader {
+        id: appLauncherLoader
+        anchors.fill: parent
+        clip: true
+        sourceComponent: surface.appLauncherComponent
+        visible: opacity > 0
+        opacity: surface.controller.launcherContentVisible ? 1 : 0
+
+        Behavior on opacity {
+            NumberAnimation { duration: Theme.contentTransitionDuration }
+        }
+    }
+
+    Loader {
+        id: clipboardLoader
+        anchors.fill: parent
+        clip: true
+        sourceComponent: surface.clipboardComponent
+        visible: opacity > 0
+        opacity: surface.controller.clipboardContentVisible ? 1 : 0
 
         Behavior on opacity {
             NumberAnimation { duration: Theme.contentTransitionDuration }

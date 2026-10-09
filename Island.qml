@@ -26,8 +26,12 @@ Variants {
 
             implicitHeight: modelData.height
             exclusiveZone: Theme.exclusiveZone
-            WlrLayershell.layer: PolkitService.active || PowerMenuService.visible
-                || PowerProfileMenuService.visible
+            WlrLayershell.layer: FocusService.resettingSurface
+                && modelData.name === FocusService.hostMonitorName
+                ? WlrLayer.Bottom
+                : PolkitService.active || PowerMenuService.visible
+                || PowerProfileMenuService.visible || AppLauncherService.visible
+                || ClipboardService.visible
                 ? WlrLayer.Overlay
                 : WlrLayer.Top
             WlrLayershell.keyboardFocus: controller.inputActive
@@ -36,7 +40,8 @@ Variants {
 
             mask: Region {
                 item: PolkitService.active || PowerMenuService.visible
-                    || PowerProfileMenuService.visible
+                    || PowerProfileMenuService.visible || AppLauncherService.visible
+                    || ClipboardService.visible
                     ? modalScrim
                     : surface
             }
@@ -48,7 +53,8 @@ Variants {
                 color: Theme.modalScrimColor
                 visible: opacity > 0
                 opacity: PolkitService.active || PowerMenuService.visible
-                    || PowerProfileMenuService.visible ? 1 : 0
+                    || PowerProfileMenuService.visible || AppLauncherService.visible
+                    || ClipboardService.visible ? 1 : 0
 
                 Behavior on opacity {
                     NumberAnimation {
@@ -70,6 +76,12 @@ Variants {
                 workspaceHost: modelData.name === WorkspaceService.monitorName
                 powerProfileHost: PowerProfileMenuService.hostMonitorName.length > 0
                     ? modelData.name === PowerProfileMenuService.hostMonitorName
+                    : modelData === Quickshell.screens[0]
+                launcherHost: AppLauncherService.hostMonitorName.length > 0
+                    ? modelData.name === AppLauncherService.hostMonitorName
+                    : modelData === Quickshell.screens[0]
+                clipboardHost: ClipboardService.hostMonitorName.length > 0
+                    ? modelData.name === ClipboardService.hostMonitorName
                     : modelData === Quickshell.screens[0]
             }
 
@@ -108,6 +120,16 @@ Variants {
                 PowerProfileView {}
             }
 
+            Component {
+                id: appLauncherView
+                AppLauncherView { host: controller.launcherHost }
+            }
+
+            Component {
+                id: clipboardView
+                ClipboardView { host: controller.clipboardHost }
+            }
+
             IslandSurface {
                 id: surface
                 z: 1
@@ -119,6 +141,8 @@ Variants {
                 authenticationComponent: authenticationView
                 sessionComponent: sessionView
                 powerProfileComponent: powerProfileView
+                appLauncherComponent: appLauncherView
+                clipboardComponent: clipboardView
             }
         }
     }

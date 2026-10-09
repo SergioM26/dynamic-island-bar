@@ -10,6 +10,8 @@ Item {
     property bool brightnessHost: false
     property bool workspaceHost: false
     property bool powerProfileHost: false
+    property bool launcherHost: false
+    property bool clipboardHost: false
 
     enum View {
         Idle,
@@ -18,7 +20,9 @@ Item {
         Workspace,
         Authentication,
         SessionMenu,
-        PowerProfiles
+        PowerProfiles,
+        AppLauncher,
+        ClipboardHistory
     }
 
     property int currentView: IslandController.Idle
@@ -30,13 +34,34 @@ Item {
     property bool sessionEngaged: false
     property bool powerProfileContentVisible: false
     property bool powerProfileEngaged: false
+    property bool launcherContentVisible: false
+    property bool launcherEngaged: false
+    property bool clipboardContentVisible: false
+    property bool clipboardEngaged: false
     property bool transientInteractionActive: false
     readonly property bool authenticationActive:
         authenticationEngaged
     readonly property bool sessionActive: sessionEngaged
     readonly property bool powerProfileActive: powerProfileEngaged
+    readonly property bool launcherActive: launcherEngaged
+    readonly property bool clipboardActive: clipboardEngaged
     readonly property bool inputActive:
-        authenticationActive || sessionActive || powerProfileActive
+        authenticationActive || sessionActive || powerProfileActive || launcherActive
+            || clipboardActive
+    readonly property bool largePanelActive:
+        authenticationActive || launcherActive || clipboardActive
+    readonly property real launcherTargetHeight:
+        Theme.launcherHeaderHeight
+        + Math.max(1, Math.min(AppLauncherService.resultCount, Theme.launcherMaximumRows))
+            * Theme.launcherRowHeight
+        + Theme.launcherListTopPadding
+        + Theme.launcherBottomPadding
+    readonly property real clipboardTargetHeight:
+        Theme.launcherHeaderHeight
+        + Math.max(1, Math.min(ClipboardService.resultCount, Theme.launcherMaximumRows))
+            * Theme.launcherRowHeight
+        + Theme.launcherListTopPadding
+        + Theme.launcherBottomPadding
 
     onTransientInteractionActiveChanged: {
         if (transientInteractionActive) {
@@ -58,6 +83,10 @@ Item {
                 ? Qt.size(Theme.sessionWidth, Theme.sessionHeight)
             : currentView === IslandController.PowerProfiles
                 ? Qt.size(Theme.powerProfileWidth, Theme.powerProfileHeight)
+            : currentView === IslandController.AppLauncher
+                ? Qt.size(Theme.launcherWidth, controller.launcherTargetHeight)
+            : currentView === IslandController.ClipboardHistory
+                ? Qt.size(Theme.launcherWidth, controller.clipboardTargetHeight)
             : currentView === IslandController.Workspace
                 ? Qt.size(Theme.workspaceSize, Theme.workspaceSize)
             : currentView === IslandController.Volume || currentView === IslandController.Brightness
@@ -106,10 +135,20 @@ Item {
         target: PolkitService
 
         function onAuthenticationStarted() {
+            if (controller.authenticationHost)
+                FocusService.capture()
+
             if (PowerMenuService.visible)
                 PowerMenuService.closeMenu()
             if (PowerProfileMenuService.visible)
                 PowerProfileMenuService.closeMenu()
+            if (AppLauncherService.visible)
+                AppLauncherService.close()
+            if (ClipboardService.visible)
+                ClipboardService.close()
+
+            if (controller.authenticationHost)
+                FocusService.hold()
 
             if (!controller.authenticationHost)
                 return
@@ -127,6 +166,18 @@ Item {
             powerProfileExitIdleTimer.stop()
             controller.powerProfileContentVisible = false
             controller.powerProfileEngaged = false
+            launcherEnterMorphTimer.stop()
+            launcherEnterContentTimer.stop()
+            launcherExitMorphTimer.stop()
+            launcherExitIdleTimer.stop()
+            controller.launcherContentVisible = false
+            controller.launcherEngaged = false
+            clipboardEnterMorphTimer.stop()
+            clipboardEnterContentTimer.stop()
+            clipboardExitMorphTimer.stop()
+            clipboardExitIdleTimer.stop()
+            controller.clipboardContentVisible = false
+            controller.clipboardEngaged = false
             authenticationExitMorphTimer.stop()
             authenticationExitIdleTimer.stop()
             controller.authenticationEngaged = true
@@ -139,6 +190,7 @@ Item {
             if (!controller.authenticationEngaged)
                 return
 
+            FocusService.restoreDelayed()
             authenticationEnterMorphTimer.stop()
             authenticationEnterContentTimer.stop()
             controller.authenticationContentVisible = false
@@ -160,11 +212,15 @@ Item {
             if (PowerMenuService.visible) {
                 if (PowerProfileMenuService.visible)
                     PowerProfileMenuService.closeMenu()
+                if (AppLauncherService.visible)
+                    AppLauncherService.close()
+                if (ClipboardService.visible)
+                    ClipboardService.close()
 
                 if (!controller.sessionHost)
                     return
 
-                if (controller.authenticationActive) {
+                if (PolkitService.active) {
                     PowerMenuService.closeMenu()
                     return
                 }
@@ -176,6 +232,24 @@ Item {
                     powerProfileExitIdleTimer.stop()
                     controller.powerProfileContentVisible = false
                     controller.powerProfileEngaged = false
+                }
+
+                if (controller.launcherActive) {
+                    launcherEnterMorphTimer.stop()
+                    launcherEnterContentTimer.stop()
+                    launcherExitMorphTimer.stop()
+                    launcherExitIdleTimer.stop()
+                    controller.launcherContentVisible = false
+                    controller.launcherEngaged = false
+                }
+
+                if (controller.clipboardActive) {
+                    clipboardEnterMorphTimer.stop()
+                    clipboardEnterContentTimer.stop()
+                    clipboardExitMorphTimer.stop()
+                    clipboardExitIdleTimer.stop()
+                    controller.clipboardContentVisible = false
+                    controller.clipboardEngaged = false
                 }
 
                 hideTimer.stop()
@@ -212,11 +286,15 @@ Item {
             if (PowerProfileMenuService.visible) {
                 if (PowerMenuService.visible)
                     PowerMenuService.closeMenu()
+                if (AppLauncherService.visible)
+                    AppLauncherService.close()
+                if (ClipboardService.visible)
+                    ClipboardService.close()
 
                 if (!controller.powerProfileHost)
                     return
 
-                if (controller.authenticationActive) {
+                if (PolkitService.active) {
                     PowerProfileMenuService.closeMenu()
                     return
                 }
@@ -228,6 +306,24 @@ Item {
                     sessionExitIdleTimer.stop()
                     controller.sessionContentVisible = false
                     controller.sessionEngaged = false
+                }
+
+                if (controller.launcherActive) {
+                    launcherEnterMorphTimer.stop()
+                    launcherEnterContentTimer.stop()
+                    launcherExitMorphTimer.stop()
+                    launcherExitIdleTimer.stop()
+                    controller.launcherContentVisible = false
+                    controller.launcherEngaged = false
+                }
+
+                if (controller.clipboardActive) {
+                    clipboardEnterMorphTimer.stop()
+                    clipboardEnterContentTimer.stop()
+                    clipboardExitMorphTimer.stop()
+                    clipboardExitIdleTimer.stop()
+                    controller.clipboardContentVisible = false
+                    controller.clipboardEngaged = false
                 }
 
                 hideTimer.stop()
@@ -252,6 +348,154 @@ Item {
             else {
                 controller.currentView = IslandController.Idle
                 controller.powerProfileEngaged = false
+                controller.baseContentVisible = true
+            }
+        }
+    }
+
+    Connections {
+        target: AppLauncherService
+
+        function onVisibleChanged() {
+            if (AppLauncherService.visible) {
+                if (PowerMenuService.visible)
+                    PowerMenuService.closeMenu()
+                if (PowerProfileMenuService.visible)
+                    PowerProfileMenuService.closeMenu()
+                if (ClipboardService.visible)
+                    ClipboardService.close()
+
+                if (!controller.launcherHost)
+                    return
+
+                if (PolkitService.active) {
+                    AppLauncherService.close()
+                    return
+                }
+
+                if (controller.sessionActive) {
+                    sessionEnterMorphTimer.stop()
+                    sessionEnterContentTimer.stop()
+                    sessionExitMorphTimer.stop()
+                    sessionExitIdleTimer.stop()
+                    controller.sessionContentVisible = false
+                    controller.sessionEngaged = false
+                }
+
+                if (controller.powerProfileActive) {
+                    powerProfileEnterMorphTimer.stop()
+                    powerProfileEnterContentTimer.stop()
+                    powerProfileExitMorphTimer.stop()
+                    powerProfileExitIdleTimer.stop()
+                    controller.powerProfileContentVisible = false
+                    controller.powerProfileEngaged = false
+                }
+
+                if (controller.clipboardActive) {
+                    clipboardEnterMorphTimer.stop()
+                    clipboardEnterContentTimer.stop()
+                    clipboardExitMorphTimer.stop()
+                    clipboardExitIdleTimer.stop()
+                    controller.clipboardContentVisible = false
+                    controller.clipboardEngaged = false
+                }
+
+                hideTimer.stop()
+                launcherExitMorphTimer.stop()
+                launcherExitIdleTimer.stop()
+                controller.launcherEngaged = true
+                controller.launcherContentVisible = false
+                controller.baseContentVisible = false
+                launcherEnterMorphTimer.restart()
+                return
+            }
+
+            if (!controller.launcherEngaged)
+                return
+
+            launcherEnterMorphTimer.stop()
+            launcherEnterContentTimer.stop()
+            controller.launcherContentVisible = false
+
+            if (controller.currentView === IslandController.AppLauncher)
+                launcherExitMorphTimer.restart()
+            else {
+                controller.currentView = IslandController.Idle
+                controller.launcherEngaged = false
+                controller.baseContentVisible = true
+            }
+        }
+    }
+
+    Connections {
+        target: ClipboardService
+
+        function onVisibleChanged() {
+            if (ClipboardService.visible) {
+                if (PowerMenuService.visible)
+                    PowerMenuService.closeMenu()
+                if (PowerProfileMenuService.visible)
+                    PowerProfileMenuService.closeMenu()
+                if (AppLauncherService.visible)
+                    AppLauncherService.close()
+
+                if (!controller.clipboardHost)
+                    return
+
+                if (PolkitService.active) {
+                    ClipboardService.close()
+                    return
+                }
+
+                if (controller.sessionActive) {
+                    sessionEnterMorphTimer.stop()
+                    sessionEnterContentTimer.stop()
+                    sessionExitMorphTimer.stop()
+                    sessionExitIdleTimer.stop()
+                    controller.sessionContentVisible = false
+                    controller.sessionEngaged = false
+                }
+
+                if (controller.powerProfileActive) {
+                    powerProfileEnterMorphTimer.stop()
+                    powerProfileEnterContentTimer.stop()
+                    powerProfileExitMorphTimer.stop()
+                    powerProfileExitIdleTimer.stop()
+                    controller.powerProfileContentVisible = false
+                    controller.powerProfileEngaged = false
+                }
+
+                if (controller.launcherActive) {
+                    launcherEnterMorphTimer.stop()
+                    launcherEnterContentTimer.stop()
+                    launcherExitMorphTimer.stop()
+                    launcherExitIdleTimer.stop()
+                    controller.launcherContentVisible = false
+                    controller.launcherEngaged = false
+                }
+
+                hideTimer.stop()
+                clipboardExitMorphTimer.stop()
+                clipboardExitIdleTimer.stop()
+                controller.clipboardEngaged = true
+                controller.clipboardContentVisible = false
+                controller.baseContentVisible = false
+                clipboardEnterMorphTimer.restart()
+                return
+            }
+
+            if (!controller.clipboardEngaged)
+                return
+
+            clipboardEnterMorphTimer.stop()
+            clipboardEnterContentTimer.stop()
+            controller.clipboardContentVisible = false
+
+            if (controller.currentView === IslandController.ClipboardHistory)
+                clipboardExitMorphTimer.restart()
+            else {
+                controller.currentView = IslandController.Idle
+                controller.clipboardEngaged = false
                 controller.baseContentVisible = true
             }
         }
@@ -373,6 +617,84 @@ Item {
         interval: Theme.morphDuration
         onTriggered: {
             controller.powerProfileEngaged = false
+            controller.baseContentVisible = true
+        }
+    }
+
+    Timer {
+        id: launcherEnterMorphTimer
+        interval: Theme.contentTransitionDuration
+        onTriggered: {
+            if (!AppLauncherService.visible)
+                return
+
+            controller.currentView = IslandController.AppLauncher
+            launcherEnterContentTimer.restart()
+        }
+    }
+
+    Timer {
+        id: launcherEnterContentTimer
+        interval: Theme.morphDuration
+        onTriggered: {
+            if (AppLauncherService.visible)
+                controller.launcherContentVisible = true
+        }
+    }
+
+    Timer {
+        id: launcherExitMorphTimer
+        interval: Theme.contentTransitionDuration
+        onTriggered: {
+            controller.currentView = IslandController.Idle
+            launcherExitIdleTimer.restart()
+        }
+    }
+
+    Timer {
+        id: launcherExitIdleTimer
+        interval: Theme.morphDuration
+        onTriggered: {
+            controller.launcherEngaged = false
+            controller.baseContentVisible = true
+        }
+    }
+
+    Timer {
+        id: clipboardEnterMorphTimer
+        interval: Theme.contentTransitionDuration
+        onTriggered: {
+            if (!ClipboardService.visible)
+                return
+
+            controller.currentView = IslandController.ClipboardHistory
+            clipboardEnterContentTimer.restart()
+        }
+    }
+
+    Timer {
+        id: clipboardEnterContentTimer
+        interval: Theme.morphDuration
+        onTriggered: {
+            if (ClipboardService.visible)
+                controller.clipboardContentVisible = true
+        }
+    }
+
+    Timer {
+        id: clipboardExitMorphTimer
+        interval: Theme.contentTransitionDuration
+        onTriggered: {
+            controller.currentView = IslandController.Idle
+            clipboardExitIdleTimer.restart()
+        }
+    }
+
+    Timer {
+        id: clipboardExitIdleTimer
+        interval: Theme.morphDuration
+        onTriggered: {
+            controller.clipboardEngaged = false
             controller.baseContentVisible = true
         }
     }

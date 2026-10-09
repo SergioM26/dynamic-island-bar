@@ -1,236 +1,225 @@
+<div align="center">
+
 # DIBAR
 
-**A Dynamic Island Bar built with Quickshell.**
+### A dynamic island bar built with Quickshell for Hyprland
 
-Inspired by **@saneAspect** and **@Gakuseei**.
+DIBAR morphs between compact views for system controls, search,
+authentication, and desktop feedback.
 
-DIBAR morphs between compact views in response to user interaction and system
-events. It currently provides a clock, workspace feedback, volume and display
-brightness controls, power-profile selection, battery feedback, an integrated
-PolicyKit authentication agent, and a session power menu.
+<p>
+  <img src="https://img.shields.io/badge/Quickshell-0.3%2B-111111?style=flat-square" alt="Quickshell 0.3+">
+  <img src="https://img.shields.io/badge/Hyprland-Wayland-111111?style=flat-square" alt="Hyprland and Wayland">
+  <img src="https://img.shields.io/badge/UI-QML-111111?style=flat-square" alt="QML UI">
+  <img src="https://img.shields.io/badge/Multi--monitor-ready-111111?style=flat-square" alt="Multi-monitor ready">
+</p>
 
-## Requirements
+<p>
+  <a href="#features">Features</a> ·
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#recommended-bindings">Bindings</a> ·
+  <a href="#gallery">Gallery</a> ·
+  <a href="#documentation">Documentation</a>
+</p>
 
-- Quickshell 0.3 or newer with the PipeWire, UPower, Hyprland, Wayland, and
-  PolicyKit modules.
-- PipeWire for volume control.
-- `brightnessctl` for laptop display brightness.
-- `ddcutil` for external monitor brightness through DDC/CI.
-- `power-profiles-daemon` for system power-profile control.
-- A PolicyKit daemon. DIBAR replaces the graphical authentication agent, not
-  the PolicyKit daemon itself.
+<img src="./Screenshots/launcher.png" alt="DIBAR application launcher" width="900">
 
-Run the shell with:
+<sub>Inspired by <strong>@saneAspect</strong> and <strong>@Gakuseei</strong>.</sub>
+
+</div>
+
+## Features
+
+<table>
+  <tr>
+    <td width="50%">
+      <strong>System controls</strong><br>
+      PipeWire volume up to 150%, mute state, contextual laptop brightness,
+      and external DDC/CI display control.
+    </td>
+    <td width="50%">
+      <strong>Search and clipboard</strong><br>
+      Native desktop-entry search plus cliphist text history, image previews,
+      filtering, restoration, and deletion.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <strong>Session and power</strong><br>
+      Lock, suspend, restart, power off, and reactive power-profile selection.
+    </td>
+    <td width="50%">
+      <strong>Desktop integration</strong><br>
+      PolicyKit authentication, workspace feedback, battery state, focus
+      restoration, and multi-monitor modal behavior.
+    </td>
+  </tr>
+</table>
+
+Every view follows the same compact visual language and uses sequential
+content → shape → content transitions.
+
+## Quick start
+
+Place the project in your Quickshell configuration directory and run:
 
 ```bash
 qs -p ~/.config/quickshell/shell.qml
 ```
 
-## Architecture
+> [!IMPORTANT]
+> DIBAR includes its own graphical PolicyKit agent. Disable other agents such
+> as `hyprpolkitagent` before starting it.
 
-```text
-shell.qml
-└── Island.qml
-    ├── Controllers/IslandController.qml
-    └── IslandSurface.qml
-        ├── Components/IslandForm.qml
-        ├── Controls/
-        │   ├── ActionButton.qml
-        │   ├── AnimatedOptionStrip.qml
-        │   ├── VolumeControl.qml
-        │   └── BrightnessControl.qml
-        └── Views/
-            ├── IdleView.qml
-            ├── WorkspaceView.qml
-            ├── VolumeView.qml
-            ├── BrightnessView.qml
-            ├── AuthenticationView.qml
-            ├── SessionView.qml
-            └── PowerProfileView.qml
-```
+<details>
+<summary><strong>Requirements</strong></summary>
 
-- `shell.qml`: Quickshell entry point.
-- `Island.qml`: creates one panel window per screen and connects the island components.
-- `IslandSurface.qml`: renders the island shape and coordinates content loaders.
-- `Controllers/`: owns the active view, target size, expansion state, and transition timing.
-- `Views/`: defines the content displayed for each island state.
-- `Components/`: contains reusable visual primitives such as the island shape, slider, and colorized icon.
-- `Controls/`: composes reusable components into volume, brightness, and action controls.
-- `Services/`: provides shared system data and actions through time, workspace,
-  volume, brightness, power profiles, PolicyKit, and power-menu services.
-- `Config/Theme.qml`: centralizes sizes, colors, typography, and animation durations.
+- Quickshell 0.3 or newer with PipeWire, UPower, Hyprland, Wayland, and
+  PolicyKit support.
+- PipeWire.
+- `brightnessctl`.
+- `ddcutil` for external-monitor brightness.
+- `power-profiles-daemon`.
+- `cliphist` and `wl-clipboard`.
+- A PolicyKit daemon.
+- Ghostty for desktop entries marked as terminal applications.
 
-The UI follows a state-driven flow:
+</details>
 
-```text
-System event or user interaction
-              ↓
-          Controller
-              ↓
-    Surface size and active view
-              ↓
-      Views and components
-```
+For clipboard watchers, PolicyKit, DDC/CI, and dependency notes, see
+[Setup and system integration](docs/SETUP.md).
 
----
+## Recommended bindings
 
-## PolicyKit authentication
-
-`PolkitService.qml` registers DIBAR as the desktop authentication agent. A
-request is shown on the monitor that was focused when it arrived. While the
-dialog is active, the island moves to the overlay layer and acquires exclusive
-keyboard focus. Password submission, cancellation, retries, and authentication
-errors are handled through Quickshell's PolicyKit service.
-
-Only one PolicyKit authentication agent can be registered for a user session.
-Stop or remove the autostart entry for agents such as `hyprpolkitagent` before
-starting DIBAR. A quick manual test is:
-
-```bash
-systemctl --user stop hyprpolkitagent
-pkexec true
-```
-
-The authentication transition is intentionally sequential:
-
-```text
-Current content fades out
-          ↓
-The empty island morphs
-          ↓
-Authentication content fades in
-```
-
-The sequence is reversed after success or cancellation.
-
-## Workspace indicator
-
-`WorkspaceService.qml` observes Hyprland's focused workspace. When it changes,
-the clock fades out, the island contracts into a circle, and the workspace
-number is shown briefly on the affected monitor before returning to `Idle`.
-
-Authentication, the session menu, and the power-profile menu are modal and
-therefore take priority.
-Workspace, volume, and brightness are transient views: the most recent system
-event replaces the previous transient view and restarts its display timer.
-
-## Contextual brightness
-
-`BrightnessService.qml` chooses the brightness backend from Hyprland's focused
-monitor. Internal laptop displays use `brightnessctl`; external DDC/CI displays
-use `ddcutil`. DDC displays are discovered at startup and then addressed by
-their resolved I²C bus to avoid repeatedly scanning every connector.
-
-The service exposes IPC commands intended for compositor keybindings:
-
-```bash
-qs ipc call brightness increase
-qs ipc call brightness decrease
-```
-
-For example:
+The following examples use Hyprland's Lua configuration:
 
 ```lua
-hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("qs ipc call brightness increase"), { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("qs ipc call brightness decrease"), { locked = true, repeating = true })
+hl.bind(mainMod .. " + R",
+    hl.dsp.exec_cmd("qs ipc call appLauncher toggle"))
+
+hl.bind(mainMod .. " + SHIFT + V",
+    hl.dsp.exec_cmd("qs ipc call clipboard toggle"))
+
+hl.bind(mainMod .. " + Escape",
+    hl.dsp.exec_cmd("qs ipc call powerMenu toggle"))
+
+hl.bind(mainMod .. " + P",
+    hl.dsp.exec_cmd("qs ipc call powerProfiles toggle"))
+
+hl.bind("XF86MonBrightnessUp",
+    hl.dsp.exec_cmd("qs ipc call brightness increase"),
+    { locked = true, repeating = true })
+
+hl.bind("XF86MonBrightnessDown",
+    hl.dsp.exec_cmd("qs ipc call brightness decrease"),
+    { locked = true, repeating = true })
 ```
 
-The brightness island appears only on the focused display. Laptop writes are
-debounced for responsiveness, while DDC writes use a longer delay and skip
-write verification to avoid flooding the monitor during slider movement.
-
-## Session menu
-
-`PowerMenuService.qml` exposes the session menu through Quickshell IPC and
-executes its lock, suspend, restart, and power-off actions. The menu opens on
-the currently focused monitor:
+<details>
+<summary><strong>Additional IPC actions</strong></summary>
 
 ```bash
-qs ipc call powerMenu toggle
+qs ipc call appLauncher open
+qs ipc call appLauncher close
+qs ipc call clipboard open
+qs ipc call clipboard close
 qs ipc call powerMenu open
 qs ipc call powerMenu close
+qs ipc call powerProfiles open
+qs ipc call powerProfiles close
 ```
 
-An example Hyprland binding is:
+</details>
 
-```lua
-hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd("qs ipc call powerMenu toggle"))
-```
+## Controls
 
-`SessionView.qml` supports mouse hover and click as well as keyboard navigation:
+| Key | Action |
+| :--- | :--- |
+| `Arrow keys` | Move through available options or results |
+| `Tab` / `Shift+Tab` | Move forward or backward |
+| `Enter` / `Space` | Activate the selected option |
+| `Escape` | Close the active modal |
+| `Delete` | Remove the selected clipboard entry |
 
-- `Left` / `Right`: change the selected action.
-- `Tab` / `Shift+Tab`: move forward or backward through the actions.
-- `Enter` / `Space`: execute the selected action.
-- `Escape`: close the menu.
+Mouse hover and click are supported throughout the interactive views.
 
-The active option name is shown below the icons. The selected indicator moves
-with a spring animation and a subtle squash effect. After activation, the
-other options and selection background fade out while the selected icon moves
-to the center above a progress label such as `Locking…` or `Shutting down…`.
-The island then contracts into a compact pill, pauses briefly in that
-confirmation state, and closes before executing the action. Opening the menu
-dims and blocks every screen while keeping the menu and keyboard focus on the
-monitor that was active when it opened. PolicyKit uses the same multi-monitor
-modal background.
+## Gallery
 
-## Power profiles
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="./Screenshots/idle.png" alt="Idle clock"><br>
+      <sub><strong>Idle</strong> — clock</sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="./Screenshots/idleHovered.png" alt="Expanded idle view"><br>
+      <sub><strong>Idle + hover</strong> — clock and date</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="./Screenshots/volume.png" alt="Volume control"><br>
+      <sub><strong>Volume</strong> — level, percentage, and mute</sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="./Screenshots/brightness.png" alt="Brightness control"><br>
+      <sub><strong>Brightness</strong> — contextual display control</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="./Screenshots/clipboard.png" alt="Clipboard history"><br>
+      <sub><strong>Clipboard</strong> — searchable text and images</sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="./Screenshots/authentication.png" alt="PolicyKit authentication"><br>
+      <sub><strong>Authentication</strong> — integrated PolicyKit prompt</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="./Screenshots/session.png" alt="Session menu"><br>
+      <sub><strong>Session</strong> — lock, suspend, restart, and power off</sub>
+    </td>
+    <td width="50%" align="center">
+      <img src="./Screenshots/powerProfiles.png" alt="Power profiles"><br>
+      <sub><strong>Power profiles</strong> — saver, balanced, and performance</sub>
+    </td>
+  </tr>
+</table>
 
-`PowerProfileMenuService.qml` uses Quickshell's native `PowerProfiles` service
-to read and change the active mode reactively. It does not execute or parse
-`powerprofilesctl`. Open the selector with:
+The application launcher is shown in the hero image at the top of this page.
 
-```bash
-qs ipc call powerProfiles toggle
-```
+## Documentation
 
-The menu offers power saver, balanced, and performance when supported by the
-system. It shares `AnimatedOptionStrip.qml` with the session menu, including
-mouse selection, arrow-key navigation, Enter/Space activation, Escape to
-close, the selected-option label, and the centered confirmation animation. It
-opens modally on the focused monitor and applies the profile only after the
-menu has completed its closing transition.
+<table>
+  <tr>
+    <td width="50%">
+      <a href="docs/SETUP.md"><strong>Setup and system integration</strong></a><br>
+      Dependencies, PolicyKit, clipboard recording, DDC/CI, IPC, and
+      troubleshooting.
+    </td>
+    <td width="50%">
+      <a href="docs/ARCHITECTURE.md"><strong>Architecture</strong></a><br>
+      Project structure, state priority, transitions, services, focus
+      restoration, and multi-monitor behavior.
+    </td>
+  </tr>
+</table>
 
-## Design principles
+## Roadmap
 
-- Minimalistic
-- State-driven
-- Compact pill-shaped surfaces
-- White for primary content, gray for secondary content, and black for the default border
-- Sequential content and shape transitions
-- Common desktop controls one interaction away
+- Workspace selector in the expanded idle view.
+- Battery percentage and Wi-Fi status in the expanded idle view.
+- Calendar.
+- Animated preview.
 
-## Current state
+## Credits
 
-### Views
+Interface icons are provided by [Lucide](https://lucide.dev/) under the ISC
+License. The corresponding license is included in
+`Assets/Icons/lucide/LICENSE`.
 
-| View | Content | Preview |
-| --- | --- | --- |
-| Idle | Clock | ![Idle](./Screenshots/idle.png) |
-| Idle + hover | Clock and date | ![Idle hovered](./Screenshots/idleHovered.png) |
-| Workspace | Active workspace number on the affected monitor | — |
-| Volume | Volume slider, mute action, and percentage up to 150% | ![Volume](./Screenshots/volume.png) |
-| Brightness | Contextual laptop or external-monitor brightness and percentage | — |
-| Authentication | PolicyKit prompt, password input, actions, and errors | — |
-| Session menu | Lock, suspend, restart, and power off, in safe-first order | — |
-| Power profiles | Power saver, balanced, and performance selector | — |
-
-The island border reflects battery status: black normally, green while
-charging, yellow for a warning, and red when battery is low. Authentication
-uses a borderless surface.
-
-## Third-party assets
-
-Interface icons are provided by [Lucide](https://lucide.dev/) under the ISC License.
-The corresponding license is included in `Assets/Icons/lucide/LICENSE`.
-
-## TODO
-
-- [x] Reusable slider for volume and brightness
-- [x] Laptop display brightness control
-- [x] Integrated PolicyKit authentication agent
-- [ ] Workspace selector in the expanded idle view
-- [ ] Battery percentage and Wi-Fi status in the expanded idle view
-- [ ] Calendar
-- [x] External monitor brightness control with ddcutil
-- [ ] Reliably restore the previously focused window after closing a modal
+<div align="center">
+  <sub>Built with Quickshell, QML, and Hyprland.</sub>
+</div>
