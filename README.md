@@ -61,7 +61,37 @@ content → shape → content transitions.
 
 ## Quick start
 
-Place the project in your Quickshell configuration directory and run:
+Run the packaged shell directly with Nix:
+
+```bash
+nix run github:SergioM26/dynamic-island-bar
+```
+
+Nix builds DIBAR and provides its Quickshell executable automatically. Avoid
+starting this command while another DIBAR instance is running.
+
+To develop or customize the source configuration:
+
+```bash
+git clone https://github.com/SergioM26/dynamic-island-bar.git
+cd dynamic-island-bar
+nix develop
+qs -p .
+```
+
+The development shell provides Quickshell and the optional command-line tools
+used by the current features. Leaving it with `exit` does not modify the
+system globally.
+
+You can also build the immutable package without running it:
+
+```bash
+nix build .
+./result/bin/dibar
+```
+
+For a traditional setup, place the project in your Quickshell configuration
+directory and run:
 
 ```bash
 qs -p ~/.config/quickshell/shell.qml
