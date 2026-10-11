@@ -74,14 +74,20 @@ qs -p ~/.config/quickshell/shell.qml
 <details>
 <summary><strong>Requirements</strong></summary>
 
+Required:
+
 - Quickshell 0.3 or newer with PipeWire, UPower, Hyprland, Wayland, and
   PolicyKit support.
-- PipeWire.
-- `brightnessctl`.
+
+Optional, depending on the enabled features:
+
+- PipeWire for volume control.
+- `brightnessctl` for laptop brightness.
 - `ddcutil` for external-monitor brightness.
-- `power-profiles-daemon`.
-- `cliphist` and `wl-clipboard`.
-- A PolicyKit daemon.
+- `power-profiles-daemon` for power modes.
+- `cliphist` and `wl-clipboard` for clipboard history.
+- A PolicyKit daemon for authentication prompts.
+- `hyprlock` for the default lock action.
 - A terminal emulator for desktop entries marked as terminal applications
   (Ghostty by default).
 
@@ -90,8 +96,9 @@ qs -p ~/.config/quickshell/shell.qml
 For clipboard watchers, PolicyKit, DDC/CI, and dependency notes, see
 [Setup and system integration](docs/SETUP.md).
 
-Common behavior such as workspace feedback, terminal command, maximum volume,
-and brightness step can be changed in `Config/Settings.qml`.
+Common behavior such as workspace feedback, terminal and lock commands,
+maximum volume, UI scale, and brightness step can be changed in
+`Config/Settings.qml`.
 
 ## Recommended bindings
 

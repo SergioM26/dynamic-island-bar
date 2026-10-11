@@ -60,7 +60,7 @@ Singleton {
             root.pendingCommand = ["systemctl", "suspend"]
             break
         case "lock":
-            root.pendingCommand = ["hyprlock"]
+            root.pendingCommand = Settings.lockCommand
             break
         case "reboot":
             root.pendingCommand = ["systemctl", "reboot"]

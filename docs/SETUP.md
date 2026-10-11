@@ -5,16 +5,21 @@ bindings, see the main [README](../README.md).
 
 ## Dependencies
 
-DIBAR expects:
+DIBAR itself requires:
 
 - Quickshell 0.3 or newer with PipeWire, UPower, Hyprland, Wayland, and
   PolicyKit modules.
-- PipeWire for volume control.
+
+The remaining runtime dependencies are optional and only support their
+corresponding features:
+
+- PipeWire for volume control and feedback.
 - `brightnessctl` for internal display brightness.
 - `ddcutil` for external DDC/CI displays.
 - `power-profiles-daemon` for power modes.
 - `cliphist` and `wl-clipboard` for clipboard history.
-- A running PolicyKit daemon.
+- A running PolicyKit daemon for authentication prompts.
+- `hyprlock` for the default lock action.
 - A terminal emulator for terminal desktop entries. Ghostty is the default.
 
 Package names and service setup vary by distribution.
@@ -39,6 +44,7 @@ readonly property bool enableWorkspaceFeedback: false
 readonly property string internalMonitorName: "eDP-1"
 readonly property real uiScale: 1.0
 readonly property var terminalCommand: ["ghostty", "-e"]
+readonly property var lockCommand: ["hyprlock"]
 readonly property real maximumVolume: 1.5
 readonly property real brightnessStep: 0.05
 ```
@@ -71,6 +77,16 @@ To use Kitty for terminal desktop entries:
 ```qml
 readonly property var terminalCommand: ["kitty", "-e"]
 ```
+
+The session menu does not depend directly on Hyprlock. Replace its lock
+command with any compatible locker:
+
+```qml
+readonly property var lockCommand: ["my-lock-command"]
+```
+
+This also leaves the menu ready to call a future DIBAR lock screen without
+changing `PowerMenuService.qml`.
 
 ## Starting DIBAR
 

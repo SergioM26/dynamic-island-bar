@@ -26,6 +26,7 @@ QtObject {
     readonly property var terminalCommand: ["ghostty", "-e"]
 
     // System controls
+    readonly property var lockCommand: ["hyprlock"]
     readonly property real maximumVolume: 1.5
     readonly property real brightnessStep: 0.05
 }
