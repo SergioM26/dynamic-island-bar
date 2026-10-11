@@ -220,6 +220,13 @@ Interface icons are provided by [Lucide](https://lucide.dev/) under the ISC
 License. The corresponding license is included in
 `Assets/Icons/lucide/LICENSE`.
 
+## License
+
+DIBAR is released under the [MIT License](LICENSE).
+
+Lucide icons retain their respective license, included in
+[`Assets/Icons/lucide/LICENSE`](Assets/Icons/lucide/LICENSE).
+
 <div align="center">
   <sub>Built with Quickshell, QML, and Hyprland.</sub>
 </div>
