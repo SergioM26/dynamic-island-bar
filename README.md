@@ -82,12 +82,16 @@ qs -p ~/.config/quickshell/shell.qml
 - `power-profiles-daemon`.
 - `cliphist` and `wl-clipboard`.
 - A PolicyKit daemon.
-- Ghostty for desktop entries marked as terminal applications.
+- A terminal emulator for desktop entries marked as terminal applications
+  (Ghostty by default).
 
 </details>
 
 For clipboard watchers, PolicyKit, DDC/CI, and dependency notes, see
 [Setup and system integration](docs/SETUP.md).
+
+Common behavior such as workspace feedback, terminal command, maximum volume,
+and brightness step can be changed in `Config/Settings.qml`.
 
 ## Recommended bindings
 

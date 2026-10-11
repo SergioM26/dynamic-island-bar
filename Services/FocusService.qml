@@ -8,21 +8,18 @@ import "../Config"
 Singleton {
     id: root
 
-    property string previousAddress: ""
     property string hostMonitorName: ""
     property bool resettingSurface: false
 
     function capture(): void {
         restoreTimer.stop()
         remapTimer.stop()
-        focusTimer.stop()
         root.resettingSurface = false
-        root.previousAddress = Hyprland.activeToplevel?.address ?? ""
         root.hostMonitorName = Hyprland.focusedMonitor?.name ?? ""
     }
 
     function restore(): void {
-        if (root.previousAddress.length === 0)
+        if (root.hostMonitorName.length === 0)
             return
 
         // A layer-shell surface can retain the real keyboard focus even after
@@ -33,22 +30,19 @@ Singleton {
     }
 
     function restoreDelayed(): void {
-        if (root.previousAddress.length > 0)
+        if (root.hostMonitorName.length > 0)
             restoreTimer.restart()
     }
 
     function hold(): void {
         restoreTimer.stop()
         remapTimer.stop()
-        focusTimer.stop()
         root.resettingSurface = false
     }
 
     function forget(): void {
         restoreTimer.stop()
         remapTimer.stop()
-        focusTimer.stop()
-        root.previousAddress = ""
         root.hostMonitorName = ""
         root.resettingSurface = false
     }
@@ -64,20 +58,7 @@ Singleton {
         interval: 24
         onTriggered: {
             root.resettingSurface = false
-            focusTimer.restart()
-        }
-    }
-
-    Timer {
-        id: focusTimer
-        interval: 24
-        onTriggered: {
-            const address = root.previousAddress
-            root.previousAddress = ""
             root.hostMonitorName = ""
-
-            if (address.length > 0)
-                Hyprland.dispatch("focuswindow address:" + address)
         }
     }
 }

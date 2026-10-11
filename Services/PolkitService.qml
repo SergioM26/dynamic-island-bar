@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Services.Polkit
+import "../Config"
 
 Singleton {
     id: root
@@ -11,9 +12,9 @@ Singleton {
     signal authenticationStarted()
     signal authenticationEnded()
 
-    readonly property bool registered: agent.isRegistered
-    readonly property bool active: agent.isActive
-    readonly property var flow: agent.flow
+    readonly property var agent: agentLoader.item
+    readonly property bool active: root.agent?.isActive ?? false
+    readonly property var flow: root.agent?.flow ?? null
     property string hostMonitorName: ""
 
     function submit(response: string): void {
@@ -25,18 +26,21 @@ Singleton {
         root.flow?.cancelAuthenticationRequest()
     }
 
-    PolkitAgent {
-        id: agent
+    LazyLoader {
+        id: agentLoader
+        active: Settings.enablePolkit
 
-        onAuthenticationRequestStarted: {
-            root.hostMonitorName = Hyprland.focusedMonitor?.name ?? ""
-            root.authenticationStarted()
-        }
+        PolkitAgent {
+            onAuthenticationRequestStarted: {
+                root.hostMonitorName = Hyprland.focusedMonitor?.name ?? ""
+                root.authenticationStarted()
+            }
 
-        onIsActiveChanged: {
-            if (!isActive) {
-                root.authenticationEnded()
-                root.hostMonitorName = ""
+            onIsActiveChanged: {
+                if (!isActive) {
+                    root.authenticationEnded()
+                    root.hostMonitorName = ""
+                }
             }
         }
     }

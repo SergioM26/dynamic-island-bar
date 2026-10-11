@@ -147,8 +147,8 @@ FocusScope {
 
                 ColorizedIcon {
                     anchors.centerIn: parent
-                    width: modelData.iconSize
-                    height: modelData.iconSize
+                    width: modelData.iconSize * Theme.uiScale
+                    height: modelData.iconSize * Theme.uiScale
                     source: modelData.icon
                     color: root.selectedIndex === index && !root.confirming
                         ? Theme.backgroundColor
@@ -181,7 +181,7 @@ FocusScope {
         z: 2
         anchors.horizontalCenter: parent.horizontalCenter
         y: root.iconTop + (Theme.sessionButtonSize - height) / 2
-        width: root.options[root.selectedIndex]?.iconSize ?? 0
+        width: (root.options[root.selectedIndex]?.iconSize ?? 0) * Theme.uiScale
         height: width
         source: root.options[root.selectedIndex]?.icon ?? ""
         color: Theme.sessionIconColor

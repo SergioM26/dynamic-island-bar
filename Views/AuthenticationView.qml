@@ -41,12 +41,15 @@ FocusScope {
 
     Column {
         anchors.centerIn: parent
-        width: Theme.authenticationContentWidth
+        width: Math.min(
+            Theme.authenticationContentWidth,
+            Math.max(1, parent.width - Theme.authenticationInputPadding * 2)
+        )
         spacing: Theme.authenticationSectionSpacing
 
         Column {
             width: parent.width
-            spacing: 6
+            spacing: Theme.authenticationTextSpacing
 
             Text {
                 width: parent.width
@@ -97,7 +100,7 @@ FocusScope {
 
                 Text {
                     anchors.left: lockIcon.right
-                    anchors.leftMargin: 12
+                    anchors.leftMargin: Theme.authenticationElementSpacing
                     anchors.verticalCenter: parent.verticalCenter
                     text: root.flow?.inputPrompt ?? "Password"
                     color: Theme.secondaryTextColor
@@ -109,7 +112,7 @@ FocusScope {
                 TextInput {
                     id: responseInput
                     anchors.left: lockIcon.right
-                    anchors.leftMargin: 12
+                    anchors.leftMargin: Theme.authenticationElementSpacing
                     anchors.right: parent.right
                     anchors.rightMargin: Theme.authenticationInputPadding
                     anchors.top: parent.top

@@ -6,6 +6,8 @@ Item {
     id: controller
 
     required property bool authenticationHost
+    required property real screenWidth
+    required property real screenHeight
     property bool sessionHost: false
     property bool brightnessHost: false
     property bool workspaceHost: false
@@ -72,7 +74,7 @@ Item {
         }
     }
 
-    readonly property size targetSize:
+    readonly property size unconstrainedTargetSize:
         currentView === IslandController.SessionMenu && PowerMenuService.compact
             ? Qt.size(Theme.optionConfirmWidth, Theme.optionConfirmHeight)
             : currentView === IslandController.PowerProfiles && PowerProfileMenuService.compact
@@ -95,11 +97,20 @@ Item {
                     ? Qt.size(Theme.expandedWidth, Theme.expandedHeight)
                     : Qt.size(Theme.idleWidth, Theme.idleHeight)
 
+    readonly property real maximumSurfaceWidth:
+        Math.max(1, screenWidth - Theme.screenEdgeMargin * 2)
+    readonly property real maximumSurfaceHeight:
+        Math.max(1, screenHeight - Theme.islandTopMargin - Theme.screenEdgeMargin)
+    readonly property size targetSize: Qt.size(
+        Math.min(unconstrainedTargetSize.width, maximumSurfaceWidth),
+        Math.min(unconstrainedTargetSize.height, maximumSurfaceHeight)
+    )
+
     Connections {
         target: VolumeService
 
         function onAudioUpdated() {
-            if (controller.inputActive)
+            if (!Settings.enableVolumeFeedback || controller.inputActive)
                 return
 
             controller.currentView = IslandController.Volume
@@ -111,7 +122,9 @@ Item {
         target: BrightnessService
 
         function onBrightnessUpdated() {
-            if (controller.inputActive || !controller.brightnessHost)
+            if (!Settings.enableBrightnessFeedback
+                    || controller.inputActive
+                    || !controller.brightnessHost)
                 return
 
             controller.currentView = IslandController.Brightness
@@ -123,7 +136,9 @@ Item {
         target: WorkspaceService
 
         function onWorkspaceActivated() {
-            if (controller.inputActive || !controller.workspaceHost)
+            if (!Settings.enableWorkspaceFeedback
+                    || controller.inputActive
+                    || !controller.workspaceHost)
                 return
 
             controller.currentView = IslandController.Workspace

@@ -22,6 +22,8 @@ shell.qml
 - `Controllers/IslandController.qml` owns view priority, target dimensions,
   transient timers, and transition sequencing.
 - `Config/Theme.qml` centralizes geometry, typography, colors, and durations.
+- `Config/Settings.qml` contains user-facing behavioral preferences such as
+  optional workspace feedback and system-control limits.
 - `Components/` contains low-level reusable visual primitives.
 - `Controls/` combines primitives into reusable interactive controls.
 - `Views/` contains the content for each island state.
@@ -93,8 +95,7 @@ Notable services include:
   confirmation animation has closed.
 - `PowerProfileMenuService.qml`: uses Quickshell's native UPower service rather
   than parsing `powerprofilesctl` output.
-- `FocusService.qml`: preserves real keyboard focus across modal layer-shell
-  views.
+- `FocusService.qml`: releases keyboard focus held by modal layer-shell views.
 
 ## Focus restoration
 
@@ -103,12 +104,12 @@ such as Wofi. Merely asking Hyprland to focus the previous window can leave the
 layer-shell surface holding the real keyboard focus, which appears as a hollow
 cursor in terminal applications.
 
-Before a modal opens, `FocusService.qml` stores the exact Hyprland window
-address and monitor. After the closing animation it briefly lowers only the
-host panel from the top layer to the bottom layer. This releases layer-shell
-keyboard focus without removing the panel's exclusive zone, so tiled windows
-do not move. The panel returns to the top layer and Hyprland focuses the saved
-window address explicitly.
+Before a modal opens, `FocusService.qml` stores its host monitor. After the
+closing animation it briefly lowers only that panel from the top layer to the
+bottom layer. This releases layer-shell keyboard focus without removing the
+panel's exclusive zone, so tiled windows do not move. Hyprland then naturally
+returns keyboard focus according to its normal focus policy, without forcing a
+window or moving the pointer.
 
 Session actions that replace the current interaction, such as locking,
 suspending, restarting, or powering off, discard the saved focus instead.

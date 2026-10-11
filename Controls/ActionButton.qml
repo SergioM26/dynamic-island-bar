@@ -8,9 +8,9 @@ Rectangle {
     property bool primary: false
     signal clicked()
 
-    implicitWidth: labelText.implicitWidth + 28
-    implicitHeight: 34
-    radius: 10
+    implicitWidth: labelText.implicitWidth + Theme.buttonHorizontalPadding * 2
+    implicitHeight: Theme.buttonHeight
+    radius: Theme.buttonRadius
     color: primary
         ? Theme.foregroundColor
         : hovered.hovered ? Theme.buttonHoverColor : Theme.buttonColor

@@ -17,6 +17,9 @@ Singleton {
     property string pendingId: ""
 
     function show(): void {
+        if (!Settings.enableClipboard)
+            return
+
         FocusService.capture()
         root.hostMonitorName = Hyprland.focusedMonitor?.name ?? ""
         root.visible = true
@@ -37,6 +40,9 @@ Singleton {
     }
 
     function refresh(): void {
+        if (!Settings.enableClipboard)
+            return
+
         root.loading = true
         listProcess.exec(["cliphist", "list"])
     }
@@ -70,7 +76,7 @@ Singleton {
     }
 
     function copy(entry: var): void {
-        if (!entry)
+        if (!Settings.enableClipboard || !entry)
             return
 
         root.pendingId = entry.id
@@ -91,7 +97,7 @@ Singleton {
     }
 
     function remove(entry: var): void {
-        if (!entry || deleteProcess.running)
+        if (!Settings.enableClipboard || !entry || deleteProcess.running)
             return
 
         deleteProcess.exec([

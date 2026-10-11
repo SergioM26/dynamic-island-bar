@@ -4,6 +4,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Services.Pipewire
+import "../Config"
 
 Singleton {
     id: root
@@ -17,7 +18,7 @@ Singleton {
     readonly property PwNode defaultSink: Pipewire.defaultAudioSink
     readonly property PwNodeAudio audio: defaultSink?.audio ?? null
     readonly property bool ready: defaultSink?.ready ?? false
-    readonly property real maximumVolume: 1.5
+    readonly property real maximumVolume: Settings.maximumVolume
 
     readonly property real volume: audio?.volume ?? 0
     readonly property bool muted: audio?.muted ?? false

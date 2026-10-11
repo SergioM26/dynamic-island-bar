@@ -66,6 +66,8 @@ Variants {
 
             IslandController {
                 id: controller
+                screenWidth: modelData.width
+                screenHeight: modelData.height
                 authenticationHost: PolkitService.hostMonitorName.length > 0
                     ? modelData.name === PolkitService.hostMonitorName
                     : modelData === Quickshell.screens[0]

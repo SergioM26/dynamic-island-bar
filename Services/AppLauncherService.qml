@@ -12,10 +12,12 @@ Singleton {
     property bool visible: false
     property string hostMonitorName: ""
     property int resultCount: 0
-    property string terminalCommand: "ghostty"
     property var pendingEntry: null
 
     function show(): void {
+        if (!Settings.enableApplicationLauncher)
+            return
+
         FocusService.capture()
         root.hostMonitorName = Hyprland.focusedMonitor?.name ?? ""
         root.visible = true
@@ -35,7 +37,7 @@ Singleton {
     }
 
     function launch(entry: var): void {
-        if (!entry)
+        if (!Settings.enableApplicationLauncher || !entry)
             return
 
         root.pendingEntry = entry
@@ -52,7 +54,7 @@ Singleton {
 
         if (entry.runInTerminal) {
             Quickshell.execDetached({
-                command: [root.terminalCommand, "-e"].concat(entry.command),
+                command: Settings.terminalCommand.concat(entry.command),
                 workingDirectory: entry.workingDirectory
             })
         } else {

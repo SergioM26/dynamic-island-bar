@@ -19,6 +19,9 @@ Singleton {
     readonly property bool hasPerformanceProfile: PowerProfiles.hasPerformanceProfile
 
     function showMenu(): void {
+        if (!Settings.enablePowerProfiles)
+            return
+
         FocusService.capture()
         root.confirming = false
         root.compact = false
@@ -49,7 +52,9 @@ Singleton {
     }
 
     function activate(profile: int): void {
-        if (profile === PowerProfile.Performance && !root.hasPerformanceProfile)
+        if (!Settings.enablePowerProfiles
+                || (profile === PowerProfile.Performance
+                    && !root.hasPerformanceProfile))
             return
 
         PowerProfiles.profile = profile
@@ -57,7 +62,9 @@ Singleton {
     }
 
     function commit(profile: int): void {
-        if (profile === PowerProfile.Performance && !root.hasPerformanceProfile)
+        if (!Settings.enablePowerProfiles
+                || (profile === PowerProfile.Performance
+                    && !root.hasPerformanceProfile))
             return
 
         root.pendingProfile = profile

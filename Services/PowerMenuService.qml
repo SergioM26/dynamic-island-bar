@@ -16,6 +16,9 @@ Singleton {
     property var pendingCommand: []
 
     function showMenu(): void {
+        if (!Settings.enablePowerMenu)
+            return
+
         FocusService.capture()
         root.confirming = false
         root.compact = false
@@ -46,6 +49,9 @@ Singleton {
     }
 
     function commit(action: string): void {
+        if (!Settings.enablePowerMenu)
+            return
+
         switch (action) {
         case "poweroff":
             root.pendingCommand = ["systemctl", "poweroff"]

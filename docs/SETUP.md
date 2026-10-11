@@ -15,9 +15,62 @@ DIBAR expects:
 - `power-profiles-daemon` for power modes.
 - `cliphist` and `wl-clipboard` for clipboard history.
 - A running PolicyKit daemon.
-- Ghostty for terminal desktop entries.
+- A terminal emulator for terminal desktop entries. Ghostty is the default.
 
 Package names and service setup vary by distribution.
+
+## User settings
+
+Behavioral preferences live in `Config/Settings.qml`, separately from visual
+values in `Config/Theme.qml`:
+
+```qml
+readonly property bool enableApplicationLauncher: true
+readonly property bool enableClipboard: true
+readonly property bool enablePowerMenu: true
+readonly property bool enablePowerProfiles: true
+readonly property bool enablePolkit: true
+readonly property bool enableExternalBrightness: true
+
+readonly property bool enableVolumeFeedback: true
+readonly property bool enableBrightnessFeedback: true
+readonly property bool enableWorkspaceFeedback: false
+
+readonly property string internalMonitorName: "eDP-1"
+readonly property real uiScale: 1.0
+readonly property var terminalCommand: ["ghostty", "-e"]
+readonly property real maximumVolume: 1.5
+readonly property real brightnessStep: 0.05
+```
+
+The first group enables complete features. A disabled IPC feature remains a
+registered target but its actions become no-ops, so existing bindings do not
+need to be removed. Disabling PolicyKit prevents DIBAR from registering its
+authentication agent, and disabling external brightness prevents `ddcutil`
+discovery and writes.
+
+The feedback group controls only transient island views. For example, keep
+workspace handling active without displaying its number in the island:
+
+```qml
+readonly property bool enableWorkspaceFeedback: false
+```
+
+Set `internalMonitorName` to the Hyprland name of the laptop display. You can
+find it with `hyprctl monitors`; external displays continue to be discovered
+through `ddcutil`.
+
+Use `uiScale` to resize DIBAR independently from the compositor. Wayland and
+Qt already account for the monitor scale configured in Hyprland, so this value
+is a personal size adjustment rather than the monitor's scale factor. For
+example, `0.9` makes the interface 10% smaller and `1.15` makes it 15% larger.
+Panels are also limited to the logical space available on each monitor.
+
+To use Kitty for terminal desktop entries:
+
+```qml
+readonly property var terminalCommand: ["kitty", "-e"]
+```
 
 ## Starting DIBAR
 
@@ -124,7 +177,7 @@ access to its I²C device.
 
 ### A terminal application does not launch
 
-Desktop entries with `Terminal=true` currently open through Ghostty. Adjust
-`terminalCommand` in `Services/AppLauncherService.qml` if another terminal is
-preferred.
+Desktop entries with `Terminal=true` use `terminalCommand` from
+`Config/Settings.qml`. Confirm that the configured executable and its execute
+argument are correct for the selected terminal.
 

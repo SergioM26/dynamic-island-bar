@@ -150,7 +150,7 @@ FocusScope {
             anchors.leftMargin: Theme.launcherHorizontalPadding
             anchors.rightMargin: Theme.launcherHorizontalPadding
             anchors.bottom: parent.bottom
-            height: 1
+            height: Theme.launcherSeparatorHeight
             color: Theme.sliderTrackColor
         }
     }
@@ -198,7 +198,7 @@ FocusScope {
 
             Rectangle {
                 anchors.fill: appIcon
-                radius: 6
+                radius: Theme.launcherIconRadius
                 color: Theme.buttonHoverColor
                 visible: appIcon.status !== Image.Ready
 

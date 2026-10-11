@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
+import "../Config"
 
 Singleton {
     id: root
@@ -11,17 +12,21 @@ Singleton {
     signal brightnessUpdated()
 
     readonly property real minimumBrightness: 0.01
-    readonly property real adjustmentStep: 0.05
+    readonly property real adjustmentStep: Settings.brightnessStep
     readonly property string activeMonitorName:
         Hyprland.focusedMonitor?.name ?? root.internalMonitorName
+    readonly property bool activeIsInternal:
+        root.activeMonitorName === root.internalMonitorName
     readonly property bool activeIsExternal:
-        root.activeMonitorName === root.externalMonitorName
+        Settings.enableExternalBrightness
+        && root.activeMonitorName === root.externalMonitorName
+        && root.externalMonitorName.length > 0
     readonly property bool externalAvailable:
-        root.externalMonitorName.length > 0
+        Settings.enableExternalBrightness && root.externalMonitorName.length > 0
     readonly property real brightness:
         root.activeIsExternal ? root.externalBrightness : root.internalBrightness
 
-    property string internalMonitorName: "eDP-1"
+    readonly property string internalMonitorName: Settings.internalMonitorName
     property string externalMonitorName: ""
     property string externalSerial: ""
     property string externalBus: ""
@@ -88,6 +93,9 @@ Singleton {
     }
 
     function applyDetection(output: string): void {
+        if (!Settings.enableExternalBrightness)
+            return
+
         let displayValid = false
         let bus = ""
         let connector = ""
@@ -152,7 +160,10 @@ Singleton {
     }
 
     function refreshExternal(): void {
-        if (!root.externalAvailable || externalQuery.running || externalWrite.running)
+        if (!Settings.enableExternalBrightness
+                || !root.externalAvailable
+                || externalQuery.running
+                || externalWrite.running)
             return
 
         externalQuery.exec(
@@ -162,12 +173,11 @@ Singleton {
 
     function refreshActive(): void {
         if (root.activeIsExternal) {
-            if (root.externalAvailable)
-                root.refreshExternal()
-            else if (!detectProcess.running)
-                detectProcess.exec(["ddcutil", "detect", "--brief"])
-        } else {
+            root.refreshExternal()
+        } else if (root.activeIsInternal) {
             root.refreshInternal()
+        } else if (Settings.enableExternalBrightness && !detectProcess.running) {
+            detectProcess.exec(["ddcutil", "detect", "--brief"])
         }
     }
 
@@ -179,7 +189,7 @@ Singleton {
             root.externalInitialized = true
             root.pendingExternalBrightness = clamped
             externalWriteTimer.restart()
-        } else {
+        } else if (root.activeIsInternal) {
             root.internalBrightness = clamped
             root.internalInitialized = true
             root.pendingInternalBrightness = clamped
@@ -188,6 +198,11 @@ Singleton {
     }
 
     function adjustBrightness(offset: real): void {
+        if (!root.activeIsInternal && !root.activeIsExternal) {
+            root.refreshActive()
+            return
+        }
+
         if (root.activeIsExternal && !root.externalInitialized) {
             root.refreshExternal()
             return
@@ -243,7 +258,11 @@ Singleton {
         function refresh(): void { root.refreshActive() }
         function getMonitor(): string { return root.activeMonitorName }
         function getBackend(): string {
-            return root.activeIsExternal ? "ddcutil" : "brightnessctl"
+            if (root.activeIsExternal)
+                return "ddcutil"
+            if (root.activeIsInternal)
+                return "brightnessctl"
+            return "unavailable"
         }
         function getValue(): real { return root.brightness }
     }
@@ -256,7 +275,7 @@ Singleton {
     Process {
         id: detectProcess
         command: ["ddcutil", "detect", "--brief"]
-        running: true
+        running: Settings.enableExternalBrightness
         stdout: StdioCollector {
             onStreamFinished: root.applyDetection(text)
         }

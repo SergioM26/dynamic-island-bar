@@ -130,7 +130,7 @@ FocusScope {
             anchors.leftMargin: Theme.launcherHorizontalPadding
             anchors.rightMargin: Theme.launcherHorizontalPadding
             anchors.bottom: parent.bottom
-            height: 1
+            height: Theme.launcherSeparatorHeight
             color: Theme.sliderTrackColor
         }
     }
@@ -170,12 +170,12 @@ FocusScope {
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.launcherRowHorizontalPadding
                 anchors.verticalCenter: parent.verticalCenter
-                width: 30
-                height: 30
+                width: Theme.clipboardPreviewSize
+                height: Theme.clipboardPreviewSize
 
                 Rectangle {
                     anchors.fill: parent
-                    radius: 6
+                    radius: Theme.launcherIconRadius
                     color: Theme.buttonHoverColor
                     visible: !row.modelData.binary
 
@@ -184,15 +184,15 @@ FocusScope {
                         text: "TXT"
                         color: Theme.secondaryTextColor
                         font.family: Theme.fontFamily
-                        font.pixelSize: 9
+                        font.pixelSize: Theme.clipboardBadgeFontSize
                     }
                 }
 
                 Rectangle {
                     anchors.fill: parent
-                    radius: 6
+                    radius: Theme.launcherIconRadius
                     color: Theme.buttonHoverColor
-                    border.width: 1
+                    border.width: Theme.thumbnailBorderWidth
                     border.color: Theme.thumbnailBorderColor
                     clip: true
                     visible: row.modelData.binary
@@ -210,7 +210,7 @@ FocusScope {
                         text: "IMG"
                         color: Theme.secondaryTextColor
                         font.family: Theme.fontFamily
-                        font.pixelSize: 9
+                        font.pixelSize: Theme.clipboardBadgeFontSize
                         visible: row.thumbnailSource.length === 0
                     }
                 }
