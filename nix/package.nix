@@ -3,6 +3,7 @@
   stdenvNoCC,
   makeWrapper,
   quickshell,
+  settingsFile ? null,
 }:
 
 stdenvNoCC.mkDerivation {
@@ -31,6 +32,10 @@ stdenvNoCC.mkDerivation {
       IslandSurface.qml \
       shell.qml \
       $out/share/dibar/
+
+    ${lib.optionalString (settingsFile != null) ''
+      cp ${settingsFile} $out/share/dibar/Config/Settings.qml
+    ''}
 
     makeWrapper ${quickshell}/bin/qs $out/bin/dibar \
       --add-flags "-p $out/share/dibar"

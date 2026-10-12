@@ -61,14 +61,60 @@ content → shape → content transitions.
 
 ## Quick start
 
-Run the packaged shell directly with Nix:
+Install the packaged shell with Nix:
+
+```bash
+nix profile install github:SergioM26/dynamic-island-bar
+dibar
+```
+
+This installs the stable `dibar` command used both to start the shell and to
+address its IPC endpoints. Avoid starting it while another DIBAR instance is
+running. The profile package uses the bundled defaults; clone the source when
+you want to edit `Config/Settings.qml` directly.
+
+For a configurable Home Manager installation, add DIBAR as a flake input:
+
+```nix
+inputs.dibar = {
+  url = "github:SergioM26/dynamic-island-bar";
+  inputs.nixpkgs.follows = "nixpkgs";
+};
+```
+
+Then import and configure its module in your Home Manager configuration:
+
+```nix
+{
+  imports = [ inputs.dibar.homeManagerModules.default ];
+
+  programs.dibar = {
+    enable = true;
+
+    settings = {
+      internalMonitorName = "eDP-1";
+      uiScale = 1.0;
+      enableWorkspaceFeedback = false;
+      maximumVolume = 1.5;
+      terminalCommand = [ "ghostty" "-e" ];
+      lockCommand = [ "hyprlock" ];
+    };
+
+    # Optional; DIBAR can instead be started from Hyprland.
+    systemd.enable = false;
+  };
+}
+```
+
+The module builds a package with the selected settings and installs the
+command-line tools required by enabled clipboard, brightness, and lock
+features. It does not create keyboard bindings.
+
+To preview DIBAR without installing it:
 
 ```bash
 nix run github:SergioM26/dynamic-island-bar
 ```
-
-Nix builds DIBAR and provides its Quickshell executable automatically. Avoid
-starting this command while another DIBAR instance is running.
 
 To develop or customize the source configuration:
 
@@ -104,7 +150,8 @@ qs -p ~/.config/quickshell/shell.qml
 <details>
 <summary><strong>Requirements</strong></summary>
 
-Required:
+Required for a manual source installation (the Nix package provides
+Quickshell automatically):
 
 - Quickshell 0.3 or newer with PipeWire, UPower, Hyprland, Wayland, and
   PolicyKit support.
@@ -132,27 +179,29 @@ maximum volume, UI scale, and brightness step can be changed in
 
 ## Recommended bindings
 
-The following examples use Hyprland's Lua configuration:
+The following examples use Hyprland's Lua configuration and the packaged
+`dibar` command. A traditional `~/.config/quickshell` installation can replace
+`dibar` with `qs`; another source location must also pass its `-p` path.
 
 ```lua
 hl.bind(mainMod .. " + R",
-    hl.dsp.exec_cmd("qs ipc call appLauncher toggle"))
+    hl.dsp.exec_cmd("dibar ipc call appLauncher toggle"))
 
 hl.bind(mainMod .. " + SHIFT + V",
-    hl.dsp.exec_cmd("qs ipc call clipboard toggle"))
+    hl.dsp.exec_cmd("dibar ipc call clipboard toggle"))
 
 hl.bind(mainMod .. " + Escape",
-    hl.dsp.exec_cmd("qs ipc call powerMenu toggle"))
+    hl.dsp.exec_cmd("dibar ipc call powerMenu toggle"))
 
 hl.bind(mainMod .. " + P",
-    hl.dsp.exec_cmd("qs ipc call powerProfiles toggle"))
+    hl.dsp.exec_cmd("dibar ipc call powerProfiles toggle"))
 
 hl.bind("XF86MonBrightnessUp",
-    hl.dsp.exec_cmd("qs ipc call brightness increase"),
+    hl.dsp.exec_cmd("dibar ipc call brightness increase"),
     { locked = true, repeating = true })
 
 hl.bind("XF86MonBrightnessDown",
-    hl.dsp.exec_cmd("qs ipc call brightness decrease"),
+    hl.dsp.exec_cmd("dibar ipc call brightness decrease"),
     { locked = true, repeating = true })
 ```
 
@@ -160,14 +209,14 @@ hl.bind("XF86MonBrightnessDown",
 <summary><strong>Additional IPC actions</strong></summary>
 
 ```bash
-qs ipc call appLauncher open
-qs ipc call appLauncher close
-qs ipc call clipboard open
-qs ipc call clipboard close
-qs ipc call powerMenu open
-qs ipc call powerMenu close
-qs ipc call powerProfiles open
-qs ipc call powerProfiles close
+dibar ipc call appLauncher open
+dibar ipc call appLauncher close
+dibar ipc call clipboard open
+dibar ipc call clipboard close
+dibar ipc call powerMenu open
+dibar ipc call powerMenu close
+dibar ipc call powerProfiles open
+dibar ipc call powerProfiles close
 ```
 
 </details>

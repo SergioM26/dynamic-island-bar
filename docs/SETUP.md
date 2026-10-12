@@ -24,6 +24,37 @@ corresponding features:
 
 Package names and service setup vary by distribution.
 
+## Home Manager
+
+The flake exports `homeManagerModules.default`. Import it from your Home
+Manager configuration and enable DIBAR:
+
+```nix
+programs.dibar = {
+  enable = true;
+  settings = {
+    internalMonitorName = "eDP-1";
+    uiScale = 1.0;
+    enablePolkit = true;
+    enableWorkspaceFeedback = false;
+  };
+};
+```
+
+The module translates its typed Nix options into `Config/Settings.qml` during
+the package build. It installs `brightnessctl`, and conditionally installs
+`ddcutil`, `cliphist`, `wl-clipboard`, and the default Hyprlock command when
+their corresponding settings require them. Additional runtime tools can be
+declared explicitly:
+
+```nix
+programs.dibar.extraPackages = [ pkgs.ghostty ];
+```
+
+`programs.dibar.systemd.enable` is disabled by default. Start `dibar` from
+Hyprland, or enable the user service only when your session activates and
+exports its environment to `graphical-session.target`.
+
 ## User settings
 
 Behavioral preferences live in `Config/Settings.qml`, separately from visual

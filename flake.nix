@@ -5,7 +5,8 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
-  outputs = { self, nixpkgs, ... }:
+  outputs =
+    { self, nixpkgs, ... }:
     let
       supportedSystems = [
         "x86_64-linux"
@@ -16,7 +17,8 @@
       pkgsFor = system: import nixpkgs { inherit system; };
     in
     {
-      packages = forAllSystems (system:
+      packages = forAllSystems (
+        system:
         let
           pkgs = pkgsFor system;
           dibar = pkgs.callPackage ./nix/package.nix { };
@@ -24,7 +26,8 @@
         {
           default = dibar;
           inherit dibar;
-        });
+        }
+      );
 
       apps = forAllSystems (system: {
         default = {
@@ -38,7 +41,13 @@
         };
       });
 
-      devShells = forAllSystems (system:
+      homeManagerModules = {
+        default = import ./nix/home-manager-module.nix;
+        dibar = self.homeManagerModules.default;
+      };
+
+      devShells = forAllSystems (
+        system:
         let
           pkgs = pkgsFor system;
         in
@@ -52,7 +61,8 @@
               wl-clipboard
             ];
           };
-        });
+        }
+      );
 
       formatter = forAllSystems (system: (pkgsFor system).nixfmt);
     };
